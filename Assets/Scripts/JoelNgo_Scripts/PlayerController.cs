@@ -2,14 +2,12 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private PlayerInput _playerInput;
     [SerializeField] private Animator _animator;
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private AttackHandler _attackHandler;
-
     // Walk
     Vector3 moveDirection;
     Vector2 moveInput;
@@ -21,7 +19,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float gravity = -9.81f;
     [SerializeField] private float jumpHeight = 2f;
     private bool _jumpLanded = true;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -33,39 +30,31 @@ public class PlayerController : MonoBehaviour
     {
         Walk();
         Sprint();
-
         if (_characterController.isGrounded && jumpVelocity.y < 0)
             jumpVelocity.y = -2f;
-
         if (isJumping && _characterController.isGrounded && _jumpLanded)
         {
             // Prevent jumping while attacking and blocking
             if (_attackHandler.IsAttacking() || _attackHandler.IsBlocking())
                 return;
-
             jumpVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             _animator.SetBool("IsJumping", true);
             _jumpLanded = false; // will be reset by the landing animation
         }
-
         jumpVelocity.y += gravity * Time.deltaTime;
         moveDirection.y = jumpVelocity.y;
-
         // Prevent movement while attacking
         if (_attackHandler.IsAttacking() || _attackHandler.IsBlocking())
         {
             moveDirection.x = 0;
             moveDirection.z = 0;
         }
-
         _characterController.Move(moveDirection * Time.deltaTime);
-
         // Animator states AFTER Move
         bool grounded = _characterController.isGrounded;
         _animator.SetBool("IsJumping", !grounded && jumpVelocity.y > 0);
         _animator.SetBool("IsFalling", !grounded && jumpVelocity.y < 0);
     }
-
     private void Sprint()
     {
         if (isSprinting)
@@ -73,27 +62,20 @@ public class PlayerController : MonoBehaviour
         else
             _animator.SetBool("IsRun", false);
     }
-
     private void Walk()
     {
         bool isMoving = moveInput.sqrMagnitude > 0.01f;
         _animator.SetBool("IsWalking", isMoving);
-
         Vector3 camForward = Camera.main.transform.forward;
         Vector3 camRight = Camera.main.transform.right;
-
         camForward.y = 0;
         camRight.y = 0;
-
         camForward.Normalize();
         camRight.Normalize();
-
         moveDirection = camForward * moveInput.y + camRight * moveInput.x;
-
         // Send input to Animator for blend tree
         _animator.SetFloat("MoveX", moveInput.x, 0.1f, Time.deltaTime);
         _animator.SetFloat("MoveY", moveInput.y, 0.1f, Time.deltaTime);
-
         // Camera rotation (camera forward)
         if (moveDirection.sqrMagnitude > 0.01f)
         {
@@ -101,12 +83,9 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, 720f * Time.deltaTime);
         }
     }
-
     public void UpdateMoveInput(Vector2 v) { moveInput = v; }
     public void UpdateSprintInput(bool v) { isSprinting = v; }
     public void UpdateJumpInput(bool v) { isJumping = v; }
-
     public void AddVerticalVelocity(float v) { jumpVelocity.y = v; }
-
     private void jumpLanded() { _jumpLanded = true; }
 }
