@@ -56,11 +56,18 @@ public class Damageable : MonoBehaviour
             originalColors[i] = renderers[i].material.color;
         }
     }
+    public void TakeDamage(float amount)
+    {
+     
+        TakeDamage(Mathf.RoundToInt(amount));
+      
+    }
     public void TakeDamage(int amount)
     {
         if (health <= 0) return;
 
         health -= amount;
+        health = Mathf.Max(health, 0);
         _healthbar.updateHealthBar(stats.Health, health);
 
         StartCoroutine(DamageEffect());
@@ -70,11 +77,12 @@ public class Damageable : MonoBehaviour
             _animator.SetTrigger("Die");
         }
     }
-
+  
     public void OnDeathAnimationFinished()
     {
         gameObject.SetActive(false);
     }
 
     public int GetHealth() { return health; }
+    public int GetMaxHealth() { return stats.Health; }
 }
