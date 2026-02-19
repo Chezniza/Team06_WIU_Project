@@ -6,17 +6,16 @@ using UnityEngine.Events;
 public class AttackHandler : MonoBehaviour
 {
     [SerializeField] private Animator _animator;
-    //[SerializeField] private PlayerInput _playerInput;
-    //private InputActionAsset _inputActions;
-    //private InputAction _heavyAttack;
-
     [SerializeField] private BoxCollider[] detectors;
     [SerializeField] private CinemachineImpulseSource source;
+    [SerializeField] private CharacterController _characterController;
     [SerializeField] private LayerMask m_LayerMask;
     // Stats
     [SerializeField] Stats stats;
     private int damage;
     [SerializeField] private Damageable damageable;
+    [SerializeField] float parryTime = 0.2f;
+    [SerializeField] float blockAngle = 120f;
 
     public UnityEvent attackEvent;
     public UnityEvent heavyAttackEvent;
@@ -36,12 +35,11 @@ public class AttackHandler : MonoBehaviour
     private string[] _attackNames = new string[] { "LightAttack1", "LightAttack2", "LightAttack3" };
     private string _heavyAttackName = "HeavyAttack";
     int maxAttacks = 3;
+    float blockHeldTime = 0f;
+    private Vector3 externalVelocity = Vector3.zero;
 
     private void Start()
     {
-        //_inputActions = _playerInput.actions;
-        //_heavyAttack = _inputActions["HeavyAttack"];
-
         _isAttack = false;
         _isBlock = false;
         _attackStep = 0;
@@ -66,28 +64,10 @@ public class AttackHandler : MonoBehaviour
 
     private void Update()
     {
-        //Block();
-
-        //// Queue light attack
-        //if (_inputActions["Attack"].WasPressedThisFrame())
-        //{
-        //    _queuedAttacks = Mathf.Min(maxAttacks, _queuedAttacks + 1);
-
-        //    if (!_isAttack)
-        //        StartCombo();
-        //}
-        //// Queue heavy attack
-        //if (_heavyAttack.WasPressedThisFrame())
-        //{
-        //    _queuedAttacks = 0; // clear remaining light attacks
-        //    _heavyQueued = true; // queue heavy
-
-        //    if (!_isAttack)
-        //        StartCombo(); // start immediately if idle
-        //}
-
         if (damageable.GetHealth() <= 0)
             return;
+
+        UpdateBlock();
 
         foreach (var collider in detectors)
         {
@@ -103,6 +83,7 @@ public class AttackHandler : MonoBehaviour
                     m_LayerMask
                 );
 
+                // Hit logic
                 for (int i = 0; i < hitColliders.Length; i++)
                 {
                     collider.enabled = false;
@@ -111,32 +92,34 @@ public class AttackHandler : MonoBehaviour
                     // Check if target is blocking
                     if (target.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
                     {
-                        if (targetAttackHandler.IsBlocking())
+                        if (targetAttackHandler.IsBlocking() && IsFacingTarget(target.transform, this.transform))
                         {
-                            // Light attack
-                            if (!_isHeavyAttacking)
+                            // Get target's block time
+                            float targetBlockTime = targetAttackHandler.GetBlockTime();
+
+                            // Get parried if target blocked precisely
+                            if (targetBlockTime < parryTime)
+                            {
+                                Stagger(this.gameObject);
+                                Debug.Log("Parry");
+                                return;
+                            }
+                            // Light attack hit target
+                            else if (!_isHeavyAttacking)
                             {
                                 blockHitEvent.Invoke();
                                 source.GenerateImpulse(Camera.main.transform.forward);
+
+                                // Push target
+                                Vector3 pushDir = (target.transform.position - transform.position).normalized;
+                                targetAttackHandler.ApplyBlockPush(pushDir, 8f);
+
                                 return; // stop here to prevent damage
                             }
-                            // Heavy attack
+                            // Heavy attack hit target
                             else
                             {
-                                // If AI, use a specialised stagger function
-                                if (target.TryGetComponent<EnemyAI>(out EnemyAI ai))
-                                {
-                                    ai.BreakBlockAndStagger();
-                                    staggerEvent.Invoke();
-                                }
-                                else
-                                {
-                                    targetAttackHandler.Stagger();
-                                    targetAttackHandler.StopBlock();
-                                    staggerEvent.Invoke();
-                                }
-
-                                // continue, because heavy attack can bypass block
+                                Stagger(target);
                             }      
                         }
                     }
@@ -153,6 +136,16 @@ public class AttackHandler : MonoBehaviour
                 }
             }
         }
+
+        // Push velocity
+        if (externalVelocity.magnitude > 0.01f)
+        {
+            _characterController.Move(externalVelocity * Time.deltaTime);
+            // reduce velocity overtime
+            // 8f is the velocity reduction mutliplier
+            externalVelocity = Vector3.Lerp(externalVelocity, Vector3.zero, 8f * Time.deltaTime);
+        }
+
     }
 
     private void StartCombo()
@@ -238,20 +231,6 @@ public class AttackHandler : MonoBehaviour
 
     public bool IsBlocking() { return _isBlock; }
 
-    //private void Block()
-    //{
-    //    if (_inputActions["Block"].IsPressed())
-    //    {
-    //        _isBlock = true;
-    //        _animator.SetBool("IsBlocking", true);
-    //    }
-    //    else
-    //    {
-    //        _isBlock = false;
-    //        _animator.SetBool("IsBlocking", false);
-    //    }
-    //}
-
     public void RequestLightAttack()
     {
         _queuedAttacks = Mathf.Min(maxAttacks, _queuedAttacks + 1);
@@ -277,14 +256,61 @@ public class AttackHandler : MonoBehaviour
         _animator.SetBool("IsBlocking", true);
     }
 
+    private void UpdateBlock()
+    {
+        if (_isBlock)
+            blockHeldTime += Time.deltaTime;
+    }
+
     public void StopBlock()
     {
         _isBlock = false;
         _animator.SetBool("IsBlocking", false);
+        blockHeldTime = 0f;
     }
 
-    public void Stagger()
+    public float GetBlockTime() { return blockHeldTime; }
+
+    public void TriggerStaggerAnim()
     {
         _animator.SetTrigger("Stagger");
     }
+
+    public void Stagger(GameObject target)
+    {
+        AttackHandler targetAttackHandler = target.GetComponent<AttackHandler>();
+
+        // If AI, use a specialised stagger function
+        if (target.TryGetComponent<EnemyAI>(out EnemyAI ai))
+        {
+            ai.BreakBlockAndStagger();
+            staggerEvent.Invoke();
+        }
+        else
+        {
+            targetAttackHandler.TriggerStaggerAnim();
+            targetAttackHandler.StopBlock();
+            staggerEvent.Invoke();
+        }
+    }
+
+    private bool IsFacingTarget(Transform defender, Transform attacker)
+    {
+        Vector3 toAttacker = (attacker.position - defender.position).normalized;
+        toAttacker.y = 0f;
+
+        Vector3 forward = defender.forward;
+        forward.y = 0f;
+
+        float dot = Vector3.Dot(forward, toAttacker);
+        float dotThreshold = Mathf.Cos(blockAngle * 0.5f * Mathf.Deg2Rad);
+        return dot >= dotThreshold;
+    }
+
+    public void ApplyBlockPush(Vector3 direction, float force)
+    {
+        direction.y = 0f;
+        externalVelocity = direction.normalized * force;
+    }
+
 }
