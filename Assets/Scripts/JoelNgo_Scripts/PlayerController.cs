@@ -9,18 +9,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator _animator;
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private AttackHandler _attackHandler;
-    
-    // Camera
-    [SerializeField] private CinemachineCamera _virtualCamera;
-    [SerializeField] private CinemachineCamera _freeLookCamera;
-
-    // Input actions
-    private InputActionAsset _inputActions;
-    private InputAction _sprintAction;
-    private InputAction _jumpAction;
-    private InputAction _lightAttack;
-    private InputAction _heavyAttack;
-    private InputAction _blockAction;
 
     // Walk
     Vector3 moveDirection;
@@ -37,13 +25,6 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _inputActions = _playerInput.actions;
-        _sprintAction = _playerInput.actions["Sprint"];
-        _jumpAction = _playerInput.actions["Jump"];
-        _lightAttack = _playerInput.actions["Attack"];
-        _heavyAttack = _playerInput.actions["HeavyAttack"];
-        _blockAction = _playerInput.actions["Block"];
-
         moveInput = Vector2.zero;
         isSprinting = false;
         isJumping = false;
@@ -128,19 +109,4 @@ public class PlayerController : MonoBehaviour
     public void AddVerticalVelocity(float v) { jumpVelocity.y = v; }
 
     private void jumpLanded() { _jumpLanded = true; }
-
-    private void CameraInput()
-    {
-        // Camera blending
-        if (_inputActions["Previous"].IsPressed())
-        {
-            _virtualCamera.gameObject.SetActive(true);
-            _freeLookCamera.gameObject.SetActive(false);
-        }
-        else if (_inputActions["Next"].IsPressed())
-        {
-            _virtualCamera.gameObject.SetActive(false);
-            _freeLookCamera.gameObject.SetActive(true);
-        }
-    }
 }

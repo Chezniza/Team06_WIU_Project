@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +11,10 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private PlayerController _playerController;
     [SerializeField] private Damageable damageable;
     [SerializeField] private AttackHandler _attackHandler;
+
+    // Camera
+    [SerializeField] private CinemachineCamera _virtualCamera;
+    [SerializeField] private CinemachineCamera _freeLookCamera;
 
     // Input actions
     private InputActionAsset _inputActions;
@@ -70,5 +75,20 @@ public class InputHandler : MonoBehaviour
             _attackHandler.StartBlock();
         else
             _attackHandler.StopBlock();
+    }
+
+    private void CameraInput()
+    {
+        // Camera blending
+        if (_inputActions["Previous"].IsPressed())
+        {
+            _virtualCamera.gameObject.SetActive(true);
+            _freeLookCamera.gameObject.SetActive(false);
+        }
+        else if (_inputActions["Next"].IsPressed())
+        {
+            _virtualCamera.gameObject.SetActive(false);
+            _freeLookCamera.gameObject.SetActive(true);
+        }
     }
 }
