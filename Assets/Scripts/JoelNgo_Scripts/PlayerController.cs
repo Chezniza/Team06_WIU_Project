@@ -9,22 +9,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator _animator;
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private AttackHandler _attackHandler;
-    [SerializeField] private Damageable damageable;
-    // Camera
-    [SerializeField] private CinemachineCamera _virtualCamera;
-    [SerializeField] private CinemachineCamera _freeLookCamera;
-
-    // Input actions
-    private InputActionAsset _inputActions;
-    private InputAction _sprintAction;
-    private InputAction _jumpAction;
-    private InputAction _lightAttack;
-    private InputAction _heavyAttack;
-    private InputAction _blockAction;
 
     // Walk
     Vector3 moveDirection;
+    Vector2 moveInput;
+    // Sprint
+    bool isSprinting;
     // Jump
+    bool isJumping;
     private Vector3 jumpVelocity;
     [SerializeField] public float gravity = -9.81f;
     [SerializeField] private float jumpHeight = 2f;
@@ -33,31 +25,19 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _inputActions = _playerInput.actions;
-        _sprintAction = _playerInput.actions["Sprint"];
-        _jumpAction = _playerInput.actions["Jump"];
-        _lightAttack = _playerInput.actions["Attack"];
-        _heavyAttack = _playerInput.actions["HeavyAttack"];
-        _blockAction = _playerInput.actions["Block"];
+        moveInput = Vector2.zero;
+        isSprinting = false;
+        isJumping = false;
     }
     void Update()
     {
-        // Reset the scene
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
-
-        if (damageable.GetHealth() <= 0)
-            return;
-
         Walk();
         Sprint();
 
         if (_characterController.isGrounded && jumpVelocity.y < 0)
             jumpVelocity.y = -2f;
 
-        if (_jumpAction.WasPressedThisFrame() && _characterController.isGrounded && _jumpLanded)
+        if (isJumping && _characterController.isGrounded && _jumpLanded)
         {
             // Prevent jumping while attacking and blocking
             if (_attackHandler.IsAttacking() || _attackHandler.IsBlocking())
@@ -84,24 +64,11 @@ public class PlayerController : MonoBehaviour
         bool grounded = _characterController.isGrounded;
         _animator.SetBool("IsJumping", !grounded && jumpVelocity.y > 0);
         _animator.SetBool("IsFalling", !grounded && jumpVelocity.y < 0);
-
-        // Attack input
-        if (_lightAttack.WasPressedThisFrame())
-            _attackHandler.RequestLightAttack();
-
-        if (_heavyAttack.WasPressedThisFrame())
-            _attackHandler.RequestHeavyAttack();
-
-        // Block input
-        if (_blockAction.IsPressed())
-            _attackHandler.StartBlock();
-        else
-            _attackHandler.StopBlock();
     }
 
     private void Sprint()
     {
-        if (_sprintAction.IsPressed())
+        if (isSprinting)
             _animator.SetBool("IsRun", true);
         else
             _animator.SetBool("IsRun", false);
@@ -109,8 +76,7 @@ public class PlayerController : MonoBehaviour
 
     private void Walk()
     {
-        Vector2 input = _inputActions["Move"].ReadValue<Vector2>();
-        bool isMoving = input.sqrMagnitude > 0.01f;
+        bool isMoving = moveInput.sqrMagnitude > 0.01f;
         _animator.SetBool("IsWalking", isMoving);
 
         Vector3 camForward = Camera.main.transform.forward;
@@ -122,11 +88,11 @@ public class PlayerController : MonoBehaviour
         camForward.Normalize();
         camRight.Normalize();
 
-        moveDirection = camForward * input.y + camRight * input.x;
+        moveDirection = camForward * moveInput.y + camRight * moveInput.x;
 
         // Send input to Animator for blend tree
-        _animator.SetFloat("MoveX", input.x, 0.1f, Time.deltaTime);
-        _animator.SetFloat("MoveY", input.y, 0.1f, Time.deltaTime);
+        _animator.SetFloat("MoveX", moveInput.x, 0.1f, Time.deltaTime);
+        _animator.SetFloat("MoveY", moveInput.y, 0.1f, Time.deltaTime);
 
         // Camera rotation (camera forward)
         if (moveDirection.sqrMagnitude > 0.01f)
@@ -136,22 +102,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void UpdateMoveInput(Vector2 v) { moveInput = v; }
+    public void UpdateSprintInput(bool v) { isSprinting = v; }
+    public void UpdateJumpInput(bool v) { isJumping = v; }
+
     public void AddVerticalVelocity(float v) { jumpVelocity.y = v; }
 
     private void jumpLanded() { _jumpLanded = true; }
-
-    private void CameraInput()
-    {
-        // Camera blending
-        if (_inputActions["Previous"].IsPressed())
-        {
-            _virtualCamera.gameObject.SetActive(true);
-            _freeLookCamera.gameObject.SetActive(false);
-        }
-        else if (_inputActions["Next"].IsPressed())
-        {
-            _virtualCamera.gameObject.SetActive(false);
-            _freeLookCamera.gameObject.SetActive(true);
-        }
-    }
 }
