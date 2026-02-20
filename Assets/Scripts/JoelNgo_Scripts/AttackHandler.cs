@@ -23,6 +23,7 @@ public class AttackHandler : MonoBehaviour
     // Current weapon
     private WeaponData currentWeapon;
     private Weapon equippedWeapon;
+    private int currentWeaponIndex = 0;
     // Weapon information
     private string[] _attackNames;
     private string _heavyAttackName;
@@ -168,18 +169,6 @@ public class AttackHandler : MonoBehaviour
             // reduce velocity overtime
             // 8f is the velocity reduction mutliplier
             externalVelocity = Vector3.Lerp(externalVelocity, Vector3.zero, 8f * Time.deltaTime);
-        }
-
-        // Change weapon
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            if (currentWeapon == weapons[0])
-                currentWeapon = weapons[1];
-            else
-                currentWeapon = weapons[0];
-
-
-            EquipWeapon(currentWeapon);
         }
     }
 
@@ -369,6 +358,21 @@ public class AttackHandler : MonoBehaviour
         damage = data.damage;
         _attackNames = data.lightAttackNames;
         _heavyAttackName = data.heavyAttackName;
+    }
+
+    public void CycleWeapon()
+    {
+        if (weapons == null || weapons.Length == 0) return;
+
+        currentWeaponIndex++;
+
+        // Loop back to 0 when reaching end
+        if (currentWeaponIndex >= weapons.Length)
+            currentWeaponIndex = 0;
+
+        currentWeapon = weapons[currentWeaponIndex];
+
+        EquipWeapon(currentWeapon);
     }
 
 }
