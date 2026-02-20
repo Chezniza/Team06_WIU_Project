@@ -16,7 +16,7 @@ MonoBehaviour:
   description: 
   icon: {fileID: 0}
   itemType: 1
-  rarity: 0
+  rarity: 2
   armourSlot: 2
   shape: 010101010101
   shapeWidth: 2

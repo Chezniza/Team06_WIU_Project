@@ -7418,6 +7418,7 @@ MonoBehaviour:
   _cellPrefab: {fileID: 4469144404668558611, guid: 5beb121293e3e804289aa2cdb38b507e, type: 3}
   _itemTilePrefab: {fileID: 3512316634111563191, guid: 6a11564346b643d44afbbe3b48e17675, type: 3}
   cellSize: 64
+  _canvas: {fileID: 1824005589}
   slotHead: {fileID: 469733854}
   slotTorso: {fileID: 791823423}
   slotPants: {fileID: 966949235}

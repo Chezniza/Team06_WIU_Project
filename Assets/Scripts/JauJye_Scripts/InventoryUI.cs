@@ -17,6 +17,9 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private GameObject _itemTilePrefab;
     public float cellSize = 64f;
 
+    [Header("Canvas")]
+    [SerializeField] private Canvas _canvas;
+
     [Header("Equipment Slots UI")]
     [SerializeField] private EquipmentSlotUI slotHead;
     [SerializeField] private EquipmentSlotUI slotTorso;
@@ -38,6 +41,9 @@ public class InventoryUI : MonoBehaviour
     private GameObject _dragVisual;
     private bool _isDragging;
 
+    private int _dragOffsetX;
+    private int _dragOffsetY;
+
     // Track spawned item tiles
     private Dictionary<InventoryItem, GameObject> _itemTiles = new Dictionary<InventoryItem, GameObject>();
 
@@ -48,7 +54,8 @@ public class InventoryUI : MonoBehaviour
     private InputAction _rotateAction;
     private InputAction _clickAction;
 
-    public bool IsInventoryOpen() => _inventoryPanel.activeSelf;
+    // Canvas camera reference (null for Screen Space Overlay)
+    private Camera _canvasCamera => _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera;
 
     private void Awake()
     {
@@ -76,8 +83,12 @@ public class InventoryUI : MonoBehaviour
 
         if (!_inventoryPanel.activeSelf) return;
 
-        if (_rotateAction.WasPressedThisFrame() && _isDragging)
-            RotateDragItem();
+        // Rotate only fires when dragging, consuming the input so it doesn't leak
+        if (_rotateAction.WasPressedThisFrame())
+        {
+            if (_isDragging) RotateDragItem();
+            return; // always consume P when inventory is open
+        }
 
         if (_isDragging)
             UpdateDragVisual();
@@ -89,6 +100,8 @@ public class InventoryUI : MonoBehaviour
             OnRelease();
     }
 
+    public bool IsInventoryOpen() => _inventoryPanel.activeSelf;
+
     private void ToggleInventory()
     {
         bool open = !_inventoryPanel.activeSelf;
@@ -97,7 +110,6 @@ public class InventoryUI : MonoBehaviour
         else CancelDrag();
     }
 
-    // ?? Grid Background ??????????????????????????????????????????????
     private void BuildGridBackground()
     {
         foreach (var obj in _cellObjects) Destroy(obj);
@@ -120,7 +132,6 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    // ?? Refresh ???????????????????????????????????????????????????????
     public void RefreshAll()
     {
         RefreshGrid();
@@ -142,7 +153,6 @@ public class InventoryUI : MonoBehaviour
         int rows = shape.GetLength(0);
         int cols = shape.GetLength(1);
 
-        // Root holder - no image, just an anchor point on the grid
         var tileRoot = new GameObject(item.data.itemName);
         tileRoot.transform.SetParent(_gridContainer, false);
         var rootRT = tileRoot.AddComponent<RectTransform>();
@@ -150,7 +160,6 @@ public class InventoryUI : MonoBehaviour
         rootRT.anchoredPosition = new Vector2(item.gridX * cellSize, -item.gridY * cellSize);
         rootRT.sizeDelta = new Vector2(cols * cellSize, rows * cellSize);
 
-        // Spawn one image per TRUE cell only — false cells are skipped leaving shape gaps
         bool foundFirst = false;
         for (int r = 0; r < rows; r++)
         {
@@ -167,7 +176,6 @@ public class InventoryUI : MonoBehaviour
                 var img = cell.GetComponent<Image>();
                 if (img) img.color = GetRarityColor(item.data.rarity);
 
-                // Icon and label only on the first filled cell
                 bool isFirst = !foundFirst;
                 foundFirst = true;
 
@@ -251,15 +259,14 @@ public class InventoryUI : MonoBehaviour
         slotGauntlets?.SetItem(eq.GetEquipped(ArmourSlot.Gauntlets));
     }
 
-    // ?? Drag & Drop ???????????????????????????????????????????????????
     private void OnClick()
     {
         Vector2 mousePos = Mouse.current.position.ReadValue();
 
         foreach (var kv in _itemTiles)
         {
-            if (RectTransformUtility.RectangleContainsScreenPoint(
-                kv.Value.GetComponent<RectTransform>(), mousePos))
+            var rt = kv.Value.GetComponent<RectTransform>();
+            if (RectTransformUtility.RectangleContainsScreenPoint(rt, mousePos, _canvasCamera))
             {
                 StartDrag(kv.Key, mousePos);
                 return;
@@ -272,12 +279,25 @@ public class InventoryUI : MonoBehaviour
         _dragItem = item;
         _isDragging = true;
 
+        // Calculate which cell within the item the mouse clicked on
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            _gridContainer, mousePos, _canvasCamera, out Vector2 local))
+        {
+            int clickedGridX = Mathf.FloorToInt(local.x / cellSize);
+            int clickedGridY = Mathf.FloorToInt(-local.y / cellSize);
+            _dragOffsetX = clickedGridX - item.gridX;
+            _dragOffsetY = clickedGridY - item.gridY;
+        }
+        else
+        {
+            _dragOffsetX = 0;
+            _dragOffsetY = 0;
+        }
+
         InventoryManager.Instance.Grid.Remove(item);
-
         if (_itemTiles.TryGetValue(item, out var oldTile)) { Destroy(oldTile); _itemTiles.Remove(item); }
-
         _dragVisual = BuildDragVisual(item, _inventoryPanel.transform);
-
+        _dragVisual.GetComponent<RectTransform>().position = mousePos;
         RefreshGrid();
         ShowTooltip(item);
     }
@@ -291,10 +311,13 @@ public class InventoryUI : MonoBehaviour
 
     private void RotateDragItem()
     {
-        if (_dragItem == null || _dragVisual == null) return;
+        if (_dragItem == null) return;
         _dragItem.Rotate();
+        Vector2 currentMousePos = Mouse.current.position.ReadValue();
         Destroy(_dragVisual);
         _dragVisual = BuildDragVisual(_dragItem, _inventoryPanel.transform);
+        // Immediately reposition to mouse so it doesn't jump
+        _dragVisual.GetComponent<RectTransform>().position = currentMousePos;
     }
 
     private void OnRelease()
@@ -303,16 +326,22 @@ public class InventoryUI : MonoBehaviour
 
         Vector2 mousePos = Mouse.current.position.ReadValue();
 
+        // Check equipment slots first
         if (TryDropOnEquipmentSlot(mousePos)) { FinaliseDrop(); return; }
 
         if (TryGetGridCell(mousePos, out int gx, out int gy))
-            if (InventoryManager.Instance.Grid.TryPlace(_dragItem, gx, gy)) { FinaliseDrop(); return; }
+        {
+            int targetX = gx - _dragOffsetX;
+            int targetY = gy - _dragOffsetY;
+            if (InventoryManager.Instance.Grid.TryPlace(_dragItem, targetX, targetY))
+            {
+                FinaliseDrop();
+                return;
+            }
+        }
 
-        // Return to original position
-        if (InventoryManager.Instance.Grid.TryPlace(_dragItem, _dragItem.gridX, _dragItem.gridY))
-            FinaliseDrop();
-        else
-            CancelDrag();
+        // No valid drop - return to original position
+        ReturnToOriginal();
     }
 
     private bool TryDropOnEquipmentSlot(Vector2 mousePos)
@@ -324,7 +353,10 @@ public class InventoryUI : MonoBehaviour
         {
             if (slot == null) continue;
             if (slot.armourSlot != _dragItem.data.armourSlot) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint(slot.GetComponent<RectTransform>(), mousePos))
+
+            var rt = slot.GetComponent<RectTransform>();
+            // Use _canvasCamera for correct hit detection regardless of canvas render mode
+            if (RectTransformUtility.RectangleContainsScreenPoint(rt, mousePos, _canvasCamera))
             {
                 InventoryManager.Instance.EquipFromGrid(_dragItem);
                 return true;
@@ -333,29 +365,34 @@ public class InventoryUI : MonoBehaviour
         return false;
     }
 
+    // Converts screen position to grid cell coordinates correctly
     private bool TryGetGridCell(Vector2 mousePos, out int gx, out int gy)
     {
         gx = gy = -1;
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            _gridContainer, mousePos, null, out Vector2 local)) return false;
 
+        // Use _canvasCamera instead of null - fixes Screen Space Camera canvases
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            _gridContainer, mousePos, _canvasCamera, out Vector2 local)) return false;
+
+        // local is relative to the RectTransform's pivot (top-left since pivot = Vector2.up)
         gx = Mathf.FloorToInt(local.x / cellSize);
         gy = Mathf.FloorToInt(-local.y / cellSize);
 
         var grid = InventoryManager.Instance.Grid;
-        return gx >= 0 && gx < grid.width && gy >= 0 && gy < grid.height;
+        if (gx < 0 || gx >= grid.width || gy < 0 || gy >= grid.height) return false;
+
+        return true;
     }
 
     private void HighlightPlacement(Vector2 mousePos)
     {
-        bool valid = TryGetGridCell(mousePos, out int gx, out int gy) &&
-                     InventoryManager.Instance.Grid.CanPlace(_dragItem, gx, gy);
+        if (_dragItem == null || _dragVisual == null) return;
 
-        if (_dragVisual)
-        {
-            foreach (var img in _dragVisual.GetComponentsInChildren<Image>())
-                img.color = valid ? new Color(0.4f, 1f, 0.4f, 0.85f) : new Color(1f, 0.3f, 0.3f, 0.85f);
-        }
+        bool valid = TryGetGridCell(mousePos, out int gx, out int gy) &&
+                     InventoryManager.Instance.Grid.CanPlace(_dragItem, gx - _dragOffsetX, gy - _dragOffsetY);
+
+        foreach (var img in _dragVisual.GetComponentsInChildren<Image>())
+            img.color = valid ? new Color(0.4f, 1f, 0.4f, 0.85f) : new Color(1f, 0.3f, 0.3f, 0.85f);
     }
 
     private void FinaliseDrop()
@@ -368,10 +405,34 @@ public class InventoryUI : MonoBehaviour
         RefreshAll();
     }
 
+    private void ReturnToOriginal()
+    {
+        // Try placing back at the stored original position
+        if (!InventoryManager.Instance.Grid.TryPlace(_dragItem, _dragItem.gridX, _dragItem.gridY))
+        {
+            // Original spot is blocked - find any free slot
+            if (InventoryManager.Instance.Grid.FindFreeSlot(_dragItem, out int x, out int y))
+                InventoryManager.Instance.Grid.TryPlace(_dragItem, x, y);
+            else
+                Debug.LogWarning($"No room to return {_dragItem.data.itemName}!");
+        }
+
+        Destroy(_dragVisual);
+        _dragVisual = null;
+        _dragItem = null;
+        _isDragging = false;
+        HideTooltip();
+        RefreshAll();
+    }
+
     private void CancelDrag()
     {
         if (_dragItem != null)
-            InventoryManager.Instance.Grid.TryPlace(_dragItem, _dragItem.gridX, _dragItem.gridY);
+        {
+            if (!InventoryManager.Instance.Grid.TryPlace(_dragItem, _dragItem.gridX, _dragItem.gridY))
+                if (InventoryManager.Instance.Grid.FindFreeSlot(_dragItem, out int x, out int y))
+                    InventoryManager.Instance.Grid.TryPlace(_dragItem, x, y);
+        }
         Destroy(_dragVisual);
         _dragVisual = null;
         _dragItem = null;
@@ -379,7 +440,6 @@ public class InventoryUI : MonoBehaviour
         RefreshAll();
     }
 
-    // ?? Tooltip ???????????????????????????????????????????????????????
     private void ShowTooltip(InventoryItem item)
     {
         if (_tooltip == null) return;
@@ -400,7 +460,6 @@ public class InventoryUI : MonoBehaviour
         if (_tooltip) _tooltip.SetActive(false);
     }
 
-    // ?? Helpers ???????????????????????????????????????????????????????
     private Color GetRarityColor(ItemRarity rarity) => rarity switch
     {
         ItemRarity.Common => new Color(0.75f, 0.72f, 0.65f),
