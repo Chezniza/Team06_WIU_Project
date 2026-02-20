@@ -15,12 +15,12 @@ MonoBehaviour:
   itemName: New Item
   description: 
   icon: {fileID: 0}
-  itemType: 0
+  itemType: 1
   rarity: 0
-  armourSlot: 0
-  shape: 01
-  shapeWidth: 1
-  shapeHeight: 1
+  armourSlot: 2
+  shape: 010101010101
+  shapeWidth: 2
+  shapeHeight: 3
   statValue: 0
   weight: 1
   healAmount: 0

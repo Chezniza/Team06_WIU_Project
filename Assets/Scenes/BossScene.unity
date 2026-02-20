@@ -6405,6 +6405,8 @@ MonoBehaviour:
   gridHeight: 6
   startingItems:
   - {fileID: 11400000, guid: bfa64822e05579846beee32225265a8e, type: 2}
+  - {fileID: 11400000, guid: 87eed1df702a80e489ac7b65ff2317b1, type: 2}
+  - {fileID: 11400000, guid: 45c8c614d7a91c04bbfc357163c5d271, type: 2}
 --- !u!4 &1485213387 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4962564636589720443, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
