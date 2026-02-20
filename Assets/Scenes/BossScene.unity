@@ -3762,6 +3762,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ed5375db4f6a2469eed031f050ce60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
+--- !u!143 &934174962 stripped
+CharacterController:
+  m_CorrespondingSourceObject: {fileID: 2297612304819080862, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+  m_PrefabInstance: {fileID: 1696718121}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &956502476
 GameObject:
   m_ObjectHideFlags: 0
@@ -6812,7 +6817,7 @@ PrefabInstance:
     - target: {fileID: 6490923059445092084, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       propertyPath: _characterController
       value: 
-      objectReference: {fileID: 1696718122}
+      objectReference: {fileID: 934174962}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
