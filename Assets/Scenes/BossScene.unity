@@ -1364,7 +1364,7 @@ MonoBehaviour:
   m_LayerMask:
     serializedVersion: 2
     m_Bits: 256
-  stats: {fileID: 11400000, guid: 89f84c86ffb4d3f48b7ecac9be237898, type: 2}
+  stats: {fileID: 11400000, guid: 7b889aea434fcdb429b242f4bc503058, type: 2}
   damageable: {fileID: 167049058}
   parryTime: 0.3
   blockAngle: 120
@@ -1457,7 +1457,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   isBoss: 1
-  enemyName: Enemy
+  enemyName: Boss
   player: {fileID: 934174951}
   animator: {fileID: 167049062}
   controller: {fileID: 167049061}
@@ -2894,8 +2894,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebddf13fc6c52a548be831dbc700e95f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  isBoss: 1
-  enemyName: Enemy
+  isBoss: 0
+  enemyName: Minion
   player: {fileID: 934174951}
   animator: {fileID: 500941757}
   controller: {fileID: 500941756}

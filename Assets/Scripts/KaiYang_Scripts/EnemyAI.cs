@@ -91,7 +91,19 @@
             // Coroutine is running (transition / ranged / spell) — skip normal AI
             if (isActing) { ApplyGravity(); return; }
 
-            float distance = Vector3.Distance(transform.position, player.position);
+        if (isBlocking)
+        {
+            blockTimer -= Time.deltaTime;
+            if (blockTimer <= 0f)
+            {
+                isBlocking = false;
+                attackHandler.StopBlock();
+                animator.SetBool("IsWalking", false); // return to idle
+            }
+            ApplyGravity();
+            return; // skip all other AI while blocking
+        }
+        float distance = Vector3.Distance(transform.position, player.position);
 
             if (distance > detectionRange)
                 Idle();
@@ -126,7 +138,7 @@
                     StartCoroutine(SpellAttack());
                     return;
                 }
-                if (rangedTimer <= 0f && projectilePrefab != null)
+                if (rangedTimer <= 0f && projectilePrefab != null && isBlocking == false)
                 {
                     StartCoroutine(RangedAttack());
                     return;
@@ -138,6 +150,7 @@
 
         private void Chase()
         {
+            if (isBlocking) return;
             animator.SetBool("IsWalking", true);
             animator.SetBool("IsAttack",  false);
 
@@ -157,17 +170,8 @@
             animator.SetBool("IsWalking", false);
             RotateTowards(player.position - transform.position);
 
-            // ── Handle active block (YOUR original logic — unchanged) ──
-            if (isBlocking)
-            {
-                blockTimer -= Time.deltaTime;
-                if (blockTimer <= 0f)
-                {
-                    isBlocking = false;
-                    attackHandler.StopBlock();
-                }
-                return;
-            }
+            if (isBlocking) return;
+
 
             attackTimer -= Time.deltaTime;
             if (attackTimer > 0f) return;
@@ -289,7 +293,7 @@
 
             // TODO: screen shake, VFX burst, audio cue
 
-            yield return new WaitForSeconds(2.5f);
+            yield return new WaitForSeconds(3f);
 
             currentPhase = EnemyPhase.Phase2;
             Debug.Log($"[{enemyName}] Entered Phase 2!");
