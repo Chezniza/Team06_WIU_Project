@@ -112,6 +112,10 @@ MonoBehaviour:
   impactVFXDuration: 1.5
   isHoming: 1
   homingStrength: 3
+  hitRadius: 0.3
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!135 &973408828429519016
 SphereCollider:
   m_ObjectHideFlags: 0

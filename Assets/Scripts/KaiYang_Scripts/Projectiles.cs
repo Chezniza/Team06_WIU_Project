@@ -4,7 +4,7 @@ using UnityEngine;
 // ============================================================
 //  Projectiles.cs  —  SteamForge / Team 06
 //  Attach to your projectile prefab.
-//  Requires: Rigidbody, Collider (set as Trigger) on prefab.
+//  Requires: Rigidbody, Collider on prefab.
 // ============================================================
 
 public class Projectiles : MonoBehaviour
@@ -13,26 +13,31 @@ public class Projectiles : MonoBehaviour
     [SerializeField] private int baseDamage = 15; // default — overridden by EnemyAI.Init()
 
     [Header("Movement")]
-    [SerializeField] private float speed    = 12f;
+    [SerializeField] private float speed = 12f;
     [SerializeField] private float lifetime = 5f;
 
     [Header("Impact")]
     [SerializeField] private GameObject impactVFXPrefab;
-    [SerializeField] private float      impactVFXDuration = 1.5f;
+    [SerializeField] private float impactVFXDuration = 1.5f;
 
     [Header("Homing (Boss Phase 2)")]
-    [SerializeField] private bool  isHoming      = false;
+    [SerializeField] private bool isHoming = false;
     [SerializeField] private float homingStrength = 3f;
+
+    [Header("Hit Detection")]
+    [SerializeField] private float hitRadius = 0.3f;   // tune to match your projectile size
+    [SerializeField] private LayerMask m_LayerMask;        // set to your Player layer in Inspector
 
     // ─────────────────────────────────────────────
     // PRIVATE STATE
     // ─────────────────────────────────────────────
 
-    private int     damage;
-    private Vector3   direction;
+    private int damage;
+    private Vector3 direction;
     private Rigidbody rb;
     private Transform player;
-    private bool      isReady = false;
+    private bool isReady = false;
+    private bool hasHit = false;  
 
     // ─────────────────────────────────────────────
     // UNITY LIFECYCLE
@@ -43,11 +48,10 @@ public class Projectiles : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.useGravity    = false;
+            rb.useGravity = false;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
-        // Use baseDamage as default — Init() overrides this when EnemyAI fires it
         damage = baseDamage;
 
         Destroy(gameObject, lifetime);
@@ -55,8 +59,9 @@ public class Projectiles : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isReady) return;
+        if (!isReady || hasHit) return;
 
+        // ── Homing steering ──────────────────────────────────
         if (isHoming && player != null)
         {
             Vector3 toPlayer = (player.position - transform.position).normalized;
@@ -68,6 +73,38 @@ public class Projectiles : MonoBehaviour
 
         if (direction != Vector3.zero)
             transform.rotation = Quaternion.LookRotation(direction);
+
+       
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, hitRadius, m_LayerMask);
+
+        for (int i = 0; i < hitColliders.Length; i++)
+        {
+            GameObject target = hitColliders[i].gameObject;
+
+            
+            if (target.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
+            {
+                if (targetAttackHandler.IsBlocking())
+                {
+                    Debug.Log("[Projectile] Blocked by player.");
+                    SpawnImpactVFX();
+                    hasHit = true;
+                    Destroy(gameObject);
+                    return;
+                }
+            }
+
+            
+            if (target.TryGetComponent<Damageable>(out Damageable damageable))
+            {
+                Debug.Log($"[Projectile] Hit player for {damage}");
+                damageable.TakeDamage(damage);
+                SpawnImpactVFX();
+                hasHit = true;
+                Destroy(gameObject);
+                return;
+            }
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -76,9 +113,9 @@ public class Projectiles : MonoBehaviour
 
     public void Init(int dmg, Vector3 dir)
     {
-        damage    = dmg;              // overrides baseDamage with EnemyAI's rangedDamage
+        damage = dmg;
         direction = dir.normalized;
-        isReady   = true;
+        isReady = true;
 
         if (isHoming)
         {
@@ -88,41 +125,26 @@ public class Projectiles : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────
-    // COLLISION
+    // ENVIRONMENT COLLISION — destroy on walls/floor
+    // (kept as trigger for non-player geometry)
     // ─────────────────────────────────────────────
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            // FIX 1: GetComponentInParent instead of GetComponent
-            //        Damageable may be on a parent GameObject, not the collider itself
-            Damageable damageable = other.GetComponentInParent<Damageable>();
+        if (hasHit) return;
 
-            if (damageable != null)
-            {
-                // FIX 2: Convert float damage to int to match TakeDamage(int)
-              //  int dmgInt = Mathf.RoundToInt(damage);
-                Debug.Log($"[Projectile] Hit player for {damage})");
-                damageable.TakeDamage(damage);
-            }
-            else
-            {
-                // This warning will appear in Console if the tag or component is wrong
-                Debug.LogWarning($"[Projectile] Hit '{other.name}' with Player tag but NO Damageable found on it or any parent!");
-            }
-
-            SpawnImpactVFX();
-            Destroy(gameObject);
+        // Ignore enemies, boss, and other projectiles
+        if (other.CompareTag("Enemy") || other.CompareTag("Boss") || other.CompareTag("Projectile"))
             return;
-        }
 
-        // Destroy on environment — ignore other enemies, boss, and other projectiles
-        if (!other.CompareTag("Enemy") && !other.CompareTag("Boss") && !other.CompareTag("Projectile"))
-        {
-            SpawnImpactVFX();
-            Destroy(gameObject);
-        }
+        // Ignore the player layer — handled by OverlapSphere above
+        if (other.CompareTag("Player"))
+            return;
+
+        // Hit environment
+        SpawnImpactVFX();
+        hasHit = true;
+        Destroy(gameObject);
     }
 
     // ─────────────────────────────────────────────
@@ -136,13 +158,15 @@ public class Projectiles : MonoBehaviour
         Destroy(vfx, impactVFXDuration);
     }
 
-    // Manual damage setter — useful for player-fired projectiles
     public void SetDamage(int dmg) => damage = dmg;
-    public float GetDamage()         => damage;
+    public float GetDamage() => damage;
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position, direction * 2f);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, hitRadius);
     }
 }
