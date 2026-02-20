@@ -4,5 +4,4 @@ using UnityEngine;
 public class Stats : ScriptableObject
 {
     [SerializeField] public int Health;
-    [SerializeField] public int damage;
 }

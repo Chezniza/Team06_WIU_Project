@@ -1,24 +1,33 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class AttackHandler : MonoBehaviour
 {
-
-    // Test note
-
     [SerializeField] private Animator _animator;
-    [SerializeField] private BoxCollider[] detectors;
     [SerializeField] private CinemachineImpulseSource source;
     [SerializeField] private CharacterController _characterController;
+    private WeaponVisual _weaponVisual;
     [SerializeField] private LayerMask m_LayerMask;
     // Stats
     [SerializeField] Stats stats;
-    private int damage;
     [SerializeField] private Damageable damageable;
     [SerializeField] float parryTime = 0.2f;
     [SerializeField] float blockAngle = 120f;
+    // Held weapons
+    [SerializeField] private WeaponData[] weapons;
+    // Current weapon
+    private WeaponData currentWeapon;
+    private Weapon equippedWeapon;
+    // Weapon information
+    private string[] _attackNames;
+    private string _heavyAttackName;
+    private BoxCollider[] detectors;
+    private int damage;
 
     public UnityEvent attackEvent;
     public UnityEvent heavyAttackEvent;
@@ -35,8 +44,6 @@ public class AttackHandler : MonoBehaviour
     private bool _heavyQueued = false;
     private Coroutine _comboCoroutine;
 
-    private string[] _attackNames = new string[] { "LightAttack1", "LightAttack2", "LightAttack3" };
-    private string _heavyAttackName = "HeavyAttack";
     float blockHeldTime = 0f;
     private Vector3 externalVelocity = Vector3.zero;
 
@@ -47,22 +54,37 @@ public class AttackHandler : MonoBehaviour
         _attackStep = 0;
         _isHeavyAttacking = false;
 
-        foreach (var collider in detectors)
-            collider.enabled = false;
+        _weaponVisual = this.GetComponent<WeaponVisual>();
 
-        damage = stats.damage;
+        currentWeapon = weapons[0];
+
+        if (_weaponVisual != null)
+        {
+            EquipWeapon(currentWeapon);
+
+            // Update current weapon data
+            damage = currentWeapon.damage;
+            _attackNames = currentWeapon.lightAttackNames;
+            _heavyAttackName = currentWeapon.heavyAttackName;
+
+            DisableCollider();
+        }
+        
     }
 
     private void EnableCollider(int index)
     {
-        detectors[index].enabled = true;
+        equippedWeapon.EnableCollider(index);
 
         if (_isHeavyAttacking)
             heavyAttackEvent.Invoke();
         else
             attackEvent.Invoke();
     }
-    private void DisableCollider(int index) => detectors[index].enabled = false;
+    private void DisableCollider()
+    {
+        equippedWeapon.DisableColliders();
+    }
 
     private void Update()
     {
@@ -128,7 +150,7 @@ public class AttackHandler : MonoBehaviour
                     // Check if target can be damaged
                     if (target.TryGetComponent<Damageable>(out Damageable damageable))
                     {
-                        int finalDamage = _isHeavyAttacking ? stats.damage * 2 : stats.damage;
+                        int finalDamage = _isHeavyAttacking ? damage * 2 : damage;
                         damageable.TakeDamage(finalDamage);
                         collider.enabled = false; // disable damage hitbox
                     }
@@ -148,6 +170,17 @@ public class AttackHandler : MonoBehaviour
             externalVelocity = Vector3.Lerp(externalVelocity, Vector3.zero, 8f * Time.deltaTime);
         }
 
+        // Change weapon
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            if (currentWeapon == weapons[0])
+                currentWeapon = weapons[1];
+            else
+                currentWeapon = weapons[0];
+
+
+            EquipWeapon(currentWeapon);
+        }
     }
 
     private void StartCombo()
@@ -163,41 +196,50 @@ public class AttackHandler : MonoBehaviour
 
     private IEnumerator PerformCombo()
     {
-        // Decide which attack to play
-        while (_lightQueued || _heavyQueued)
+        // Ranged weapon
+        if (currentWeapon.isRanged)
         {
-            string animName;
-
-            // _heavyQueued might change during the loop
-            bool wasHeavy = _heavyQueued;
-
-            // Consume buffers
-            _lightQueued = false;
-            _heavyQueued = false;
-
-            if (wasHeavy)
+            //FireProjectile();
+        }
+        // Melee weapon
+        else
+        {
+            // Decide which attack to play
+            while (_lightQueued || _heavyQueued)
             {
-                animName = _heavyAttackName;
-                _isHeavyAttacking = true; // used for events related to heavy attacks
-                _attackStep = 0; // reset combo step
+                string animName;
 
-                _animator.SetBool("IsHeavyAttack", true);
-            }
-            else
-            {
-                _attackStep++;
-                _animator.SetInteger("AttackStep", _attackStep);
+                // _heavyQueued might change during the loop
+                bool wasHeavy = _heavyQueued;
 
-                animName = _attackNames[Mathf.Clamp(_attackStep - 1, 0, _attackNames.Length - 1)];
-            }
+                // Consume buffers
+                _lightQueued = false;
+                _heavyQueued = false;
 
-            yield return null; // wait a frame for animator to update
+                if (wasHeavy)
+                {
+                    animName = _heavyAttackName;
+                    _isHeavyAttacking = true; // used for events related to heavy attacks
+                    _attackStep = 0; // reset combo step
 
-            int safetyFrames = 0;
-            while (!IsCurrentAnimationReadyForNextStep(animName) && safetyFrames < 300)
-            {
-                safetyFrames++;
-                yield return null;
+                    _animator.SetBool("IsHeavyAttack", true);
+                }
+                else
+                {
+                    _attackStep++;
+                    _animator.SetInteger("AttackStep", _attackStep);
+
+                    animName = _attackNames[Mathf.Clamp(_attackStep - 1, 0, _attackNames.Length - 1)];
+                }
+
+                yield return null; // wait a frame for animator to update
+
+                int safetyFrames = 0;
+                while (!IsCurrentAnimationReadyForNextStep(animName) && safetyFrames < 300)
+                {
+                    safetyFrames++;
+                    yield return null;
+                }
             }
         }
 
@@ -221,11 +263,8 @@ public class AttackHandler : MonoBehaviour
             _comboCoroutine = null;
         }
 
-        foreach (var collider in detectors)
-        {
-            collider.enabled = false;
-        }
-        
+        equippedWeapon?.DisableColliders();
+
         _isAttack = false;
         _lightQueued = false;
         _heavyQueued = false;
@@ -319,6 +358,17 @@ public class AttackHandler : MonoBehaviour
     {
         direction.y = 0f;
         externalVelocity = direction.normalized * force;
+    }
+    public void EquipWeapon(WeaponData data)
+    {
+        currentWeapon = data;
+
+        equippedWeapon = _weaponVisual.EquipWeapon(data.modelPrefab);
+        detectors = equippedWeapon.GetColliders();
+
+        damage = data.damage;
+        _attackNames = data.lightAttackNames;
+        _heavyAttackName = data.heavyAttackName;
     }
 
 }
