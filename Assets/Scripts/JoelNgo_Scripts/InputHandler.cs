@@ -3,6 +3,7 @@ using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using static UnityEditor.SceneView;
 
 public class InputHandler : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class InputHandler : MonoBehaviour
     // Camera
     [SerializeField] private CinemachineCamera _virtualCamera;
     [SerializeField] private CinemachineCamera _freeLookCamera;
+    [SerializeField] private CinemachineCamera _FPCamera;
 
     // Input actions
     private InputActionAsset _inputActions;
@@ -28,6 +30,10 @@ public class InputHandler : MonoBehaviour
     // Attack repeat delay
     private float holdAttackTimer;
     [SerializeField] private float holdAttackInterval = 0.3f;
+
+    // Track active camera mode
+    private enum CameraMode { ThirdPerson, FreeLook, FirstPerson }
+    private CameraMode _currentCamera = CameraMode.ThirdPerson;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -104,16 +110,41 @@ public class InputHandler : MonoBehaviour
 
     private void CameraInput()
     {
-        // Camera blending
-        if (_inputActions["Previous"].IsPressed())
+        if (_inputActions["Next"].WasPressedThisFrame())
         {
-            _virtualCamera.gameObject.SetActive(true);
-            _freeLookCamera.gameObject.SetActive(false);
+            _currentCamera = (CameraMode)(((int)_currentCamera + 1) % System.Enum.GetValues(typeof(CameraMode)).Length);
+            SetCameraMode(_currentCamera);
         }
-        else if (_inputActions["Next"].IsPressed())
+        else if (_inputActions["Previous"].WasPressedThisFrame())
         {
-            _virtualCamera.gameObject.SetActive(false);
-            _freeLookCamera.gameObject.SetActive(true);
+            int count = System.Enum.GetValues(typeof(CameraMode)).Length;
+            _currentCamera = (CameraMode)(((int)_currentCamera - 1 + count) % count);
+            SetCameraMode(_currentCamera);
+        }
+    }
+
+    private void SetCameraMode(CameraMode mode)
+    {
+        _currentCamera = mode;
+
+        // Disable all cameras first
+        _virtualCamera.gameObject.SetActive(false);
+        _freeLookCamera.gameObject.SetActive(false);
+        _FPCamera.gameObject.SetActive(false);
+
+        switch (mode)
+        {
+            case CameraMode.ThirdPerson:
+                _virtualCamera.gameObject.SetActive(true);
+                break;
+
+            case CameraMode.FreeLook:
+                _freeLookCamera.gameObject.SetActive(true);
+                break;
+
+            case CameraMode.FirstPerson:
+                _FPCamera.gameObject.SetActive(true);
+                break;
         }
     }
 }
