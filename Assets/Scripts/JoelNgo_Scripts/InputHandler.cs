@@ -25,6 +25,10 @@ public class InputHandler : MonoBehaviour
     private InputAction _heavyAttack;
     private InputAction _blockAction;
 
+    // Attack repeat delay
+    private float holdAttackTimer;
+    [SerializeField] private float holdAttackInterval = 0.3f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -41,6 +45,8 @@ public class InputHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CameraInput();
+
         // Reset the scene
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -60,21 +66,40 @@ public class InputHandler : MonoBehaviour
         _playerController.UpdateSprintInput(isSprinting);
 
         // Jump input
-        bool isJumping = _jumpAction.IsPressed() ? true : false;
+        bool isJumping = _jumpAction.WasPressedThisFrame() ? true : false;
         _playerController.UpdateJumpInput(isJumping);
 
         // Attack input
-        if (_lightAttack.WasPressedThisFrame())
-            _attackHandler.RequestLightAttack();
-
-        if (_heavyAttack.WasPressedThisFrame())
-            _attackHandler.RequestHeavyAttack();
+        AttackInputs();
 
         // Block input
         if (_blockAction.IsPressed())
             _attackHandler.StartBlock();
         else
             _attackHandler.StopBlock();
+    }
+
+    private void AttackInputs()
+    {
+        // Light attack
+        if (_lightAttack.IsPressed())
+        {
+            holdAttackTimer -= Time.deltaTime;
+
+            if (holdAttackTimer <= 0f)
+            {
+                _attackHandler.RequestLightAttack();
+                holdAttackTimer = holdAttackInterval;
+            }
+        }
+        else
+        {
+            holdAttackTimer = 0f;
+        }
+
+        // Heavy attack
+        if (_heavyAttack.WasPressedThisFrame())
+            _attackHandler.RequestHeavyAttack();
     }
 
     private void CameraInput()
