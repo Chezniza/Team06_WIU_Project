@@ -89,12 +89,7 @@ public class AttackHandler : MonoBehaviour
                 // Hit logic
                 for (int i = 0; i < hitColliders.Length; i++)
                 {
-                    collider.enabled = false;
                     GameObject target = hitColliders[i].gameObject;
-
-                    // Skip this gameObject if not player
-                    if (!target.CompareTag("Player"))
-                        continue;
 
                     // Check if target is blocking
                     if (target.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
@@ -136,6 +131,7 @@ public class AttackHandler : MonoBehaviour
                     {
                         int finalDamage = _isHeavyAttacking ? stats.damage * 2 : stats.damage;
                         damageable.TakeDamage(finalDamage);
+                        collider.enabled = false; // disable damage hitbox
                     }
 
                     attackHitEvent.Invoke();
