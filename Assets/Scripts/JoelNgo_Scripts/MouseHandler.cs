@@ -2,22 +2,30 @@ using UnityEngine;
 
 public class MouseHandler : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // Hides the cursor
-        Cursor.visible = false;
-
-        // Locks the cursor
-        Cursor.lockState = CursorLockMode.Locked;
-
-        //// Releases the cursor
-        //Cursor.lockState = CursorLockMode.None;
+        LockCursor();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        bool inventoryOpen = InventoryUI.Instance != null && InventoryUI.Instance.IsInventoryOpen();
+
+        if (inventoryOpen)
+            UnlockCursor();
+        else
+            LockCursor();
+    }
+
+    private void LockCursor()
+    {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void UnlockCursor()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 }
