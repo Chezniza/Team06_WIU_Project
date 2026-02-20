@@ -330,7 +330,7 @@ public class AttackHandler : MonoBehaviour
         }
     }
 
-    private bool IsFacingTarget(Transform defender, Transform attacker)
+    public bool IsFacingTarget(Transform defender, Transform attacker)
     {
         Vector3 toAttacker = (attacker.position - defender.position).normalized;
         toAttacker.y = 0f;
