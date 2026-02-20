@@ -45,6 +45,8 @@ public class InputHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CameraInput();
+
         // Reset the scene
         if (Input.GetKeyDown(KeyCode.R))
         {
