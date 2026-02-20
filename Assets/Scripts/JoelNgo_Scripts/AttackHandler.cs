@@ -5,6 +5,9 @@ using UnityEngine.Events;
 
 public class AttackHandler : MonoBehaviour
 {
+
+    // Test note
+
     [SerializeField] private Animator _animator;
     [SerializeField] private BoxCollider[] detectors;
     [SerializeField] private CinemachineImpulseSource source;
