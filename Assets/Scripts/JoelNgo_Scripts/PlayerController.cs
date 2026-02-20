@@ -10,11 +10,28 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private AttackHandler _attackHandler;
 
+    /*
+    * Stamina system reference
+    * M 20 Feb
+    */
+    [SerializeField] private StaminaSystem staminaSystem;
+    [SerializeField] private float exhaustedSpeed = 2f;
+
+    /*
+     * Walkspeed calculations
+     * M 20 Feb
+     */
+    [SerializeField] private float walkSpeed = 4f;
+    [SerializeField] private float sprintSpeed = 7f;
+    private float currentSpeed;
+
     // Walk
     Vector3 moveDirection;
     Vector2 moveInput;
+
     // Sprint
     bool isSprinting;
+
     // Jump
     bool isJumping;
     private Vector3 jumpVelocity;
@@ -29,6 +46,7 @@ public class PlayerController : MonoBehaviour
         isSprinting = false;
         isJumping = false;
     }
+
     void Update()
     {
         Walk();
@@ -58,7 +76,37 @@ public class PlayerController : MonoBehaviour
             moveDirection.z = 0;
         }
 
-        _characterController.Move(moveDirection * Time.deltaTime);
+        /*
+         * Walkspeed calculations
+         * M 20 Feb
+         */
+
+        // Check if the character is sprinting - M 20 Feb
+        if (isSprinting && moveInput.sqrMagnitude > 0.1f)
+        {
+            if (!staminaSystem.UseStamina(20f * Time.deltaTime))
+            {
+                isSprinting = false;
+            }
+        }
+
+        if (staminaSystem.isExhausted)
+        {
+            currentSpeed = exhaustedSpeed;
+        }
+        else
+        {
+            currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        }
+
+        Vector3 finalMove = moveDirection * currentSpeed;
+        finalMove.y = jumpVelocity.y;
+
+        _characterController.Move(finalMove * Time.deltaTime);
+
+        
+
+
 
         // Animator states AFTER Move
         bool grounded = _characterController.isGrounded;
