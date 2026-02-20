@@ -235,7 +235,6 @@ public class AttackHandler : MonoBehaviour
         _animator.SetBool("IsHeavyAttack", false);
     }
 
-
     public bool IsAttacking() { return _isAttack; }
 
     public bool IsBlocking() { return _isBlock; }
