@@ -21,6 +21,7 @@ public class Projectiles : MonoBehaviour
     [SerializeField] private float impactVFXDuration = 1.5f;
 
     [Header("Homing (Boss Phase 2)")]
+    [SerializeField] private Transform homingTarget;
     [SerializeField] private bool isHoming = false;
     [SerializeField] private float homingStrength = 3f;
 
@@ -62,10 +63,10 @@ public class Projectiles : MonoBehaviour
         if (!isReady || hasHit) return;
 
         // ── Homing steering ──────────────────────────────────
-        if (isHoming && player != null)
+        if (isHoming && homingTarget != null)
         {
-            Vector3 toPlayer = (player.position - transform.position).normalized;
-            direction = Vector3.Lerp(direction, toPlayer, homingStrength * Time.fixedDeltaTime);
+            Vector3 toTarget = (homingTarget.position - transform.position).normalized;
+            direction = Vector3.Lerp(direction, toTarget, homingStrength * Time.fixedDeltaTime);
             direction.Normalize();
         }
 
@@ -77,12 +78,44 @@ public class Projectiles : MonoBehaviour
        
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, hitRadius, m_LayerMask);
 
-        for (int i = 0; i < hitColliders.Length; i++)
-        {
-            GameObject target = hitColliders[i].gameObject;
+       
+    }
+    public void EnableHoming()
+    {
 
-            
-            if (target.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
+        isHoming = true;
+    }
+    // ─────────────────────────────────────────────
+    // INIT — called by EnemyAI right after Instantiate
+    // ─────────────────────────────────────────────
+
+
+    public void Init(int dmg, Vector3 dir, Transform aimPoint = null)
+    {
+        damage = dmg;
+        direction = dir.normalized;
+        isReady = true;
+        isHoming = false;
+        homingTarget = aimPoint;
+        if (homingTarget == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) homingTarget = playerObj.transform;
+        }
+    }
+
+  
+    private void OnTriggerEnter(Collider other)
+    {
+        if (hasHit) return;
+
+        // Ignore enemies, boss, and other projectiles
+        if (other.CompareTag("Enemy") || other.CompareTag("Boss") || other.CompareTag("Projectile"))
+            return;
+
+        if (other.CompareTag("Player"))
+        {
+            if (other.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
             {
                 if (targetAttackHandler.IsBlocking())
                 {
@@ -94,8 +127,8 @@ public class Projectiles : MonoBehaviour
                 }
             }
 
-            
-            if (target.TryGetComponent<Damageable>(out Damageable damageable))
+
+            if (other.TryGetComponent<Damageable>(out Damageable damageable))
             {
                 Debug.Log($"[Projectile] Hit player for {damage}");
                 damageable.TakeDamage(damage);
@@ -105,41 +138,6 @@ public class Projectiles : MonoBehaviour
                 return;
             }
         }
-    }
-
-    // ─────────────────────────────────────────────
-    // INIT — called by EnemyAI right after Instantiate
-    // ─────────────────────────────────────────────
-
-    public void Init(int dmg, Vector3 dir)
-    {
-        damage = dmg;
-        direction = dir.normalized;
-        isReady = true;
-
-        if (isHoming)
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null) player = playerObj.transform;
-        }
-    }
-
-    // ─────────────────────────────────────────────
-    // ENVIRONMENT COLLISION — destroy on walls/floor
-    // (kept as trigger for non-player geometry)
-    // ─────────────────────────────────────────────
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (hasHit) return;
-
-        // Ignore enemies, boss, and other projectiles
-        if (other.CompareTag("Enemy") || other.CompareTag("Boss") || other.CompareTag("Projectile"))
-            return;
-
-        // Ignore the player layer — handled by OverlapSphere above
-        if (other.CompareTag("Player"))
-            return;
 
         // Hit environment
         SpawnImpactVFX();

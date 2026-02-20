@@ -48,6 +48,7 @@
         [SerializeField] private float phase2AttackCooldownMult = 0.7f; // boss attacks faster in P2
 
         [Header("Boss — Ranged & Spell")]
+        [SerializeField] private Transform AimPoint;
         [SerializeField] private float      rangedRange            = 10f;
         [SerializeField] private float      rangedCooldown         = 3.5f;
         [SerializeField] private int        rangedDamage           = 15;  
@@ -345,28 +346,41 @@
             spellTimer  = Mathf.Max(0f, spellTimer  - Time.deltaTime);
         }
 
-        private void FireProjectile(GameObject prefab)
-        {
-            if (prefab == null || projectileSpawnPoint == null) return;
-            Vector3 dir = (player.position - projectileSpawnPoint.position).normalized;
-            GameObject p = Instantiate(prefab, projectileSpawnPoint.position, Quaternion.LookRotation(dir));
-            // FIX: was incorrectly passing spellDamage — ranged shots use rangedDamage
-            Projectiles proj = p.GetComponent<Projectiles>();
-            if (proj != null) proj.Init(rangedDamage, dir);
-        }
 
-        private void FireProjectileAngled(GameObject prefab, float angleOffset)
+    private Vector3 GetAimPosition()
+    {
+        return AimPoint != null ? AimPoint.position : player.position + Vector3.up * 1f;
+    }
+    private void FireProjectile(GameObject prefab)
+    {
+        if (prefab == null || projectileSpawnPoint == null) return;
+        Vector3 aimPos = GetAimPosition();
+        Vector3 dir = (aimPos - projectileSpawnPoint.position).normalized;
+        GameObject p = Instantiate(prefab, projectileSpawnPoint.position, Quaternion.LookRotation(dir));
+        Projectiles proj = p.GetComponent<Projectiles>();
+        if (proj != null)
         {
-            if (prefab == null || projectileSpawnPoint == null) return;
-            Vector3 baseDir = (player.position - projectileSpawnPoint.position).normalized;
-            Vector3 dir     = Quaternion.Euler(0f, angleOffset, 0f) * baseDir;
-            GameObject p    = Instantiate(prefab, projectileSpawnPoint.position, Quaternion.LookRotation(dir));
-            // FIX: was incorrectly passing spellDamage — burst shots use rangedDamage * 0.8
-            Projectiles proj = p.GetComponent<Projectiles>();
-            if (proj != null) proj.Init(rangedDamage, dir);
+            proj.Init(rangedDamage, dir, AimPoint);
+            if (currentPhase == EnemyPhase.Phase2) proj.EnableHoming();
         }
+    }
 
-        private void DealAoeDamage(Vector3 origin, float radius, int dmg)
+    private void FireProjectileAngled(GameObject prefab, float angleOffset)
+    {
+        if (prefab == null || projectileSpawnPoint == null) return;
+        Vector3 aimPos = GetAimPosition();
+        Vector3 baseDir = (aimPos - projectileSpawnPoint.position).normalized;
+        Vector3 dir = Quaternion.Euler(0f, angleOffset, 0f) * baseDir;
+        GameObject p = Instantiate(prefab, projectileSpawnPoint.position, Quaternion.LookRotation(dir));
+        Projectiles proj = p.GetComponent<Projectiles>();
+        if (proj != null)
+        {
+            proj.Init(rangedDamage, dir, AimPoint);
+            if (currentPhase == EnemyPhase.Phase2) proj.EnableHoming();
+        }
+    }
+
+    private void DealAoeDamage(Vector3 origin, float radius, int dmg)
         {
             Collider[] hits = Physics.OverlapSphere(origin, radius);
             foreach (var hit in hits)
