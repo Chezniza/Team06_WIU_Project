@@ -28,8 +28,8 @@ public class AttackHandler : MonoBehaviour
     int _attackStep;
     bool _isHeavyAttacking;
 
-    private int _queuedAttacks = 0;
-    private bool _heavyQueued = false; // flag for heavy attack
+    private bool _lightQueued = false;
+    private bool _heavyQueued = false;
     private Coroutine _comboCoroutine;
 
     private string[] _attackNames = new string[] { "LightAttack1", "LightAttack2", "LightAttack3" };
@@ -155,33 +155,41 @@ public class AttackHandler : MonoBehaviour
         _isAttack = true;
         _animator.SetBool("IsAttack", true);
 
-        // start single coroutine to run the queued attacks
+        // run the queued attacks
         _comboCoroutine = StartCoroutine(PerformCombo());
     }
 
     private IEnumerator PerformCombo()
     {
         // Decide which attack to play
-        while (_queuedAttacks > 0 || _heavyQueued)
+        while (_lightQueued || _heavyQueued)
         {
             string animName;
 
-            if (_heavyQueued)
+            // _heavyQueued might change during the loop
+            bool wasHeavy = _heavyQueued;
+
+            // Consume buffers
+            _lightQueued = false;
+            _heavyQueued = false;
+
+            if (wasHeavy)
             {
                 animName = _heavyAttackName;
-                _heavyQueued = false;
                 _isHeavyAttacking = true; // used for events related to heavy attacks
                 _attackStep = 0; // reset combo step
+
                 _animator.SetBool("IsHeavyAttack", true);
             }
             else
             {
                 _attackStep++;
                 _animator.SetInteger("AttackStep", _attackStep);
+
                 animName = _attackNames[Mathf.Clamp(_attackStep - 1, 0, _attackNames.Length - 1)];
             }
 
-            yield return null; // wait a frame for animator
+            yield return null; // wait a frame for animator to update
 
             int safetyFrames = 0;
             while (!IsCurrentAnimationReadyForNextStep(animName) && safetyFrames < 300)
@@ -189,10 +197,6 @@ public class AttackHandler : MonoBehaviour
                 safetyFrames++;
                 yield return null;
             }
-
-            // Reduce queued attacks if it was light
-            if (!_heavyQueued)
-                _queuedAttacks--;
         }
 
         ResetCombo();
@@ -215,11 +219,16 @@ public class AttackHandler : MonoBehaviour
             _comboCoroutine = null;
         }
 
+        foreach (var collider in detectors)
+        {
+            collider.enabled = false;
+        }
+        
         _isAttack = false;
+        _lightQueued = false;
+        _heavyQueued = false;
         _isHeavyAttacking = false;
         _attackStep = 0;
-        _queuedAttacks = 0;
-        _heavyQueued = false;
 
         _animator.SetInteger("AttackStep", 0);
         _animator.SetBool("IsAttack", false);
@@ -233,7 +242,7 @@ public class AttackHandler : MonoBehaviour
 
     public void RequestLightAttack()
     {
-        _queuedAttacks = Mathf.Min(maxAttacks, _queuedAttacks + 1);
+        _lightQueued = true;
 
         if (!_isAttack)
             StartCombo();
@@ -241,7 +250,6 @@ public class AttackHandler : MonoBehaviour
 
     public void RequestHeavyAttack()
     {
-        _queuedAttacks = 0;
         _heavyQueued = true;
 
         if (!_isAttack)
@@ -250,8 +258,7 @@ public class AttackHandler : MonoBehaviour
 
     public void StartBlock()
     {
-        if (_isAttack) return; // optional: prevent blocking mid-attack
-
+        ResetCombo();
         _isBlock = true;
         _animator.SetBool("IsBlocking", true);
     }

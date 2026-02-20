@@ -1299,11 +1299,14 @@ MonoBehaviour:
   detectors:
   - {fileID: 1705502373}
   source: {fileID: 934174952}
+  _characterController: {fileID: 167049061}
   m_LayerMask:
     serializedVersion: 2
     m_Bits: 256
   stats: {fileID: 11400000, guid: 89f84c86ffb4d3f48b7ecac9be237898, type: 2}
   damageable: {fileID: 167049058}
+  parryTime: 0.3
+  blockAngle: 120
   attackEvent:
     m_PersistentCalls:
       m_Calls:
@@ -2733,11 +2736,14 @@ MonoBehaviour:
   detectors:
   - {fileID: 1816316585}
   source: {fileID: 934174952}
+  _characterController: {fileID: 934174954}
   m_LayerMask:
     serializedVersion: 2
     m_Bits: 64
   stats: {fileID: 11400000, guid: 8b68bf777e869f944bd987b189af9a35, type: 2}
   damageable: {fileID: 934174959}
+  parryTime: 0.2
+  blockAngle: 120
   attackEvent:
     m_PersistentCalls:
       m_Calls:
@@ -5821,6 +5827,7 @@ MonoBehaviour:
   _attackHandler: {fileID: 934174953}
   _virtualCamera: {fileID: 164084046}
   _freeLookCamera: {fileID: 163825082}
+  holdAttackInterval: 0.3
 --- !u!4 &1481967576
 Transform:
   m_ObjectHideFlags: 0
