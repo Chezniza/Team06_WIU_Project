@@ -92,6 +92,10 @@ public class AttackHandler : MonoBehaviour
                     collider.enabled = false;
                     GameObject target = hitColliders[i].gameObject;
 
+                    // Skip this gameObject if not player
+                    if (!target.CompareTag("Player"))
+                        continue;
+
                     // Check if target is blocking
                     if (target.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
                     {

@@ -10,7 +10,7 @@ using UnityEngine;
 public class Projectiles : MonoBehaviour
 {
     [Header("Damage")]
-    [SerializeField] private float baseDamage = 15f; // default — overridden by EnemyAI.Init()
+    [SerializeField] private int baseDamage = 15; // default — overridden by EnemyAI.Init()
 
     [Header("Movement")]
     [SerializeField] private float speed    = 12f;
@@ -28,7 +28,7 @@ public class Projectiles : MonoBehaviour
     // PRIVATE STATE
     // ─────────────────────────────────────────────
 
-    private float     damage;
+    private int     damage;
     private Vector3   direction;
     private Rigidbody rb;
     private Transform player;
@@ -74,7 +74,7 @@ public class Projectiles : MonoBehaviour
     // INIT — called by EnemyAI right after Instantiate
     // ─────────────────────────────────────────────
 
-    public void Init(float dmg, Vector3 dir)
+    public void Init(int dmg, Vector3 dir)
     {
         damage    = dmg;              // overrides baseDamage with EnemyAI's rangedDamage
         direction = dir.normalized;
@@ -137,7 +137,7 @@ public class Projectiles : MonoBehaviour
     }
 
     // Manual damage setter — useful for player-fired projectiles
-    public void SetDamage(float dmg) => damage = dmg;
+    public void SetDamage(int dmg) => damage = dmg;
     public float GetDamage()         => damage;
 
     private void OnDrawGizmosSelected()

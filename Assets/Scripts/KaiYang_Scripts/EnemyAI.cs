@@ -50,11 +50,11 @@
         [Header("Boss — Ranged & Spell")]
         [SerializeField] private float      rangedRange            = 10f;
         [SerializeField] private float      rangedCooldown         = 3.5f;
-        [SerializeField] private float      rangedDamage           = 15f;  
+        [SerializeField] private int        rangedDamage           = 15;  
         [SerializeField] private GameObject projectilePrefab;
         [SerializeField] private Transform  projectileSpawnPoint;
         [SerializeField] private float      spellCooldown          = 6f;
-        [SerializeField] private float      spellDamage            = 30f;
+        [SerializeField] private int        spellDamage            = 30;
         [SerializeField] private float      aoeRadius              = 4f;
         [SerializeField] private float      aoeDelay               = 1.2f;
         [SerializeField] private GameObject burstProjectilePrefab;  // Phase 2 spread shot
@@ -363,10 +363,10 @@
             GameObject p    = Instantiate(prefab, projectileSpawnPoint.position, Quaternion.LookRotation(dir));
             // FIX: was incorrectly passing spellDamage — burst shots use rangedDamage * 0.8
             Projectiles proj = p.GetComponent<Projectiles>();
-            if (proj != null) proj.Init(rangedDamage * 0.8f, dir);
+            if (proj != null) proj.Init(rangedDamage, dir);
         }
 
-        private void DealAoeDamage(Vector3 origin, float radius, float dmg)
+        private void DealAoeDamage(Vector3 origin, float radius, int dmg)
         {
             Collider[] hits = Physics.OverlapSphere(origin, radius);
             foreach (var hit in hits)

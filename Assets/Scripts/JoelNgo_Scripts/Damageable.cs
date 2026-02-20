@@ -56,12 +56,7 @@ public class Damageable : MonoBehaviour
             originalColors[i] = renderers[i].material.color;
         }
     }
-    public void TakeDamage(float amount)
-    {
-     
-        TakeDamage(Mathf.RoundToInt(amount));
-      
-    }
+
     public void TakeDamage(int amount)
     {
         if (health <= 0) return;
