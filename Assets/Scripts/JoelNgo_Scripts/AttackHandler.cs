@@ -37,7 +37,6 @@ public class AttackHandler : MonoBehaviour
 
     private string[] _attackNames = new string[] { "LightAttack1", "LightAttack2", "LightAttack3" };
     private string _heavyAttackName = "HeavyAttack";
-    int maxAttacks = 3;
     float blockHeldTime = 0f;
     private Vector3 externalVelocity = Vector3.zero;
 
