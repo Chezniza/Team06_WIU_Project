@@ -104,7 +104,10 @@ public class PlayerController : MonoBehaviour
         }
 
 
-
+        /*
+         * Recovery mode
+         * M 23 Feb
+         */
         if (staminaSystem.IsInRecovery())
         {
             currentSpeed = exhaustedSpeed;
