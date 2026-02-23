@@ -12,8 +12,6 @@ public class WeaponData : ScriptableObject
     [Header("Stats")]
     public int damage = 5;
     public float heavyMultiplier = 2f;
-    public float parryTime = 0.2f;
-    public float blockAngle = 120f;
 
     [Header("WeaponModel")]
     public GameObject modelPrefab;
