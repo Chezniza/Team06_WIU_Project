@@ -1325,6 +1325,12 @@ MonoBehaviour:
   aoeRadius: 4
   aoeDelay: 1.2
   aoeWarningPrefab: {fileID: 3401152098043458202, guid: e8b95922ab7a14245bbe32131a936555, type: 3}
+  pillarPrefab: {fileID: 2925545736976168742, guid: 77b60c8740b42a4418d766a8c9a206e8, type: 3}
+  pillarCount: 4
+  pillarSpawnRadius: 10
+  pillarSpawnHeight: 0
+  pillarPhaseInterval: 4
+  pillarRangedCooldown: 1.5
 --- !u!114 &167049068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7663,7 +7669,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatHitResolver
   layerMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 2624
   impulse: {fileID: 934174952}
   characterController: {fileID: 1454366941}
   attackHitEvent:

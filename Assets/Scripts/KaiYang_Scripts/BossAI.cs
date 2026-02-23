@@ -43,6 +43,7 @@ public class BossAI : EnemyBase
     [SerializeField] private GameObject pillarPrefab;
     [SerializeField] private int        pillarCount          = 4;
     [SerializeField] private float      pillarSpawnRadius    = 4f;    // distance from boss
+    [SerializeField] private float      pillarSpawnHeight    = 0f;    // vertical offset
     [SerializeField] private float      pillarPhaseInterval  = 30f;   // seconds between pillar phases
     [SerializeField] private float      pillarRangedCooldown = 1.5f;  // faster shooting while locked
 
@@ -69,24 +70,17 @@ public class BossAI : EnemyBase
         if (!phaseTransitionDone)
             CheckPhaseTransition();
 
-        // Blocking: freeze in place
-        if (isBlocking)
-        {
-            animator.SetBool("IsWalking", false);
-            ApplyGravity();
-            return;
-        }
-
         rangedTimer = Mathf.Max(0f, rangedTimer - Time.deltaTime);
         spellTimer  = Mathf.Max(0f, spellTimer  - Time.deltaTime);
 
         // Pillar phase interval tick — only in Phase 2, outside an active pillar phase
-        if (currentPhase == BossPhase.Phase2 && !inPillarPhase)
+        // Ticks even while blocking so the boss can't get stuck in block forever
+        if (currentPhase == BossPhase.Phase2 && !inPillarPhase && !isActing)
         {
             pillarPhaseTimer -= Time.deltaTime;
             if (pillarPhaseTimer <= 0f)
             {
-                // Force-stop any stuck coroutine before starting pillar phase
+                // Force-stop any stuck state before starting pillar phase
                 StopAllCoroutines();
                 isActing   = false;
                 isBlocking = false;
@@ -94,6 +88,14 @@ public class BossAI : EnemyBase
                 StartCoroutine(PillarPhase());
                 return;
             }
+        }
+
+        // Blocking: freeze in place (checked AFTER pillar timer so block can't prevent phase start)
+        if (isBlocking)
+        {
+            animator.SetBool("IsWalking", false);
+            ApplyGravity();
+            return;
         }
 
         // During pillar phase: rooted in place, shoot only
@@ -165,6 +167,7 @@ public class BossAI : EnemyBase
     private IEnumerator PillarPhase()
     {
         inPillarPhase = true;
+        isInvincible  = true;
         activePillars.Clear();
 
         animator.SetBool("IsWalking", false);
@@ -180,6 +183,7 @@ public class BossAI : EnemyBase
 
         Debug.Log($"[{enemyName}] All pillars destroyed — resuming normal behaviour.");
         inPillarPhase    = false;
+        isInvincible     = false;
         pillarPhaseTimer = pillarPhaseInterval;
     }
 
@@ -198,11 +202,11 @@ public class BossAI : EnemyBase
         {
             float   angle    = i * angleStep;
             Vector3 offset   = Quaternion.Euler(0f, angle, 0f) * Vector3.forward * pillarSpawnRadius;
-            Vector3 spawnPos = transform.position + offset;
+            Vector3 spawnPos = transform.position + offset + Vector3.up * pillarSpawnHeight;
 
             // Snap to ground on uneven terrain
             if (Physics.Raycast(spawnPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 15f))
-                spawnPos = hit.point;
+                spawnPos = hit.point + Vector3.up * (pillarPrefab.transform.localScale.y * 0.5f);
 
             GameObject    go = Instantiate(pillarPrefab, spawnPos, Quaternion.identity);
             PillarHealth  ph = go.GetComponent<PillarHealth>();

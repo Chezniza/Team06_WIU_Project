@@ -38,6 +38,9 @@ public abstract class EnemyBase : MonoBehaviour
     // ── Coroutine lock — prevents overlapping actions ──────
     protected bool isActing = false;
 
+    // ── Invincibility flag — set by subclasses (e.g. boss pillar phase) ──
+    protected bool isInvincible = false;
+
     // ─────────────────────────────────────────────
     // UNITY LIFECYCLE  (subclasses call base.Update or override fully)
     // ─────────────────────────────────────────────
@@ -111,6 +114,8 @@ public abstract class EnemyBase : MonoBehaviour
         blockTimer = Random.Range(blockDurationRange.x, blockDurationRange.y);
         attackHandler.StartBlock();
     }
+
+    public bool IsInvincible() => isInvincible;
 
     public void BreakBlockAndStagger()
     {

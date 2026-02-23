@@ -68,6 +68,9 @@ public class Damageable : MonoBehaviour
         // Stop other damage effects
         StopAllCoroutines();
 
+        EnemyBase enemy = GetComponent<EnemyBase>();
+        if (enemy != null && enemy.IsInvincible()) return;
+
         if (health <= 0) return;
 
         health -= amount;

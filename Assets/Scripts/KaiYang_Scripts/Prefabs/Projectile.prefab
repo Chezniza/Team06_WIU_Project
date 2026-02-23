@@ -113,11 +113,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1600
   speed: 12
-  lifetime: 5
+  lifetime: 3
   impactVFXPrefab: {fileID: 0}
   impactVFXDuration: 1.5
   isHoming: 0
-  homingStrength: 1
+  homingStrength: 0.75
 --- !u!135 &973408828429519016
 SphereCollider:
   m_ObjectHideFlags: 0
