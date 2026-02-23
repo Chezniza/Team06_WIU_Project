@@ -1,6 +1,7 @@
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
-using Unity.Cinemachine;
+using UnityEngine.UIElements;
 
 public class HitDetector : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class HitDetector : MonoBehaviour
     public UnityEvent attackHitEvent;
     public UnityEvent blockHitEvent;
     public UnityEvent staggerEvent;
+
+    [Header("Effects")]
+    public ParticleSystem blockFX;
 
     private WeaponController weapon;
     private ComboController combo;
@@ -84,11 +88,19 @@ public class HitDetector : MonoBehaviour
                 {
                     blockHitEvent?.Invoke();
 
-                    impulse?.GenerateImpulse(Camera.main.transform.forward);
+                    // Block FX
+                    Collider targetCollider = target.GetComponent<Collider>();
 
-                    Vector3 pushDir =
-                        (target.transform.position - transform.position).normalized;
+                    Vector3 hitPoint = targetCollider != null ? 
+                        targetCollider.ClosestPoint(collider.transform.position) : target.transform.position;
 
+                    Vector3 dir = (transform.position - hitPoint).normalized;
+                    Quaternion rot = Quaternion.LookRotation(dir);
+
+                    Instantiate(blockFX, hitPoint, rot);
+
+                    //impulse?.GenerateImpulse(Camera.main.transform.forward);
+                    Vector3 pushDir = (target.transform.position - transform.position).normalized;
                     ApplyPush(pushDir, 8f);
 
                     return;
@@ -100,6 +112,8 @@ public class HitDetector : MonoBehaviour
                     Stagger(target);
                 }
             }
+
+            collider.enabled = false;
         }
 
         // Damage

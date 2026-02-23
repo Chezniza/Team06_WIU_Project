@@ -25,8 +25,6 @@ public class ComboController : MonoBehaviour
 
     public void RequestLightAttack()
     {
-        Debug.Log("request light atk");
-
         lightQueued = true;
 
         if (!isAttack)

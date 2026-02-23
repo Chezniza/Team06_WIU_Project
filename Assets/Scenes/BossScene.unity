@@ -1387,6 +1387,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  blockFX: {fileID: 9157344304056779089, guid: a7211a5083f8d9b44a6aecbc67a1f3a2, type: 3}
 --- !u!114 &167049069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1442,6 +1443,7 @@ MonoBehaviour:
   staggerEvent:
     m_PersistentCalls:
       m_Calls: []
+  blockFX: {fileID: 0}
 --- !u!114 &167049072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7029,6 +7031,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  blockFX: {fileID: 9157344304056779089, guid: a7211a5083f8d9b44a6aecbc67a1f3a2, type: 3}
 --- !u!114 &1323671600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7711,6 +7714,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  blockFX: {fileID: 9157344304056779089, guid: a7211a5083f8d9b44a6aecbc67a1f3a2, type: 3}
 --- !u!114 &1454366948
 MonoBehaviour:
   m_ObjectHideFlags: 0
