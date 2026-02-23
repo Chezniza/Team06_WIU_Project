@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 2911015076113854442}
   - component: {fileID: 973408828429519016}
   - component: {fileID: 6882963712494445334}
-  m_Layer: 0
-  m_Name: Projectile
-  m_TagString: Projectile
+  m_Layer: 10
+  m_Name: Arrow
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.5, y: 0.35, z: 0.5}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -105,19 +105,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc84be8a789a6024da055092e30bd5e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectiles
-  baseDamage: 15
+  baseDamage: 3
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 64
   m_Ignore:
     serializedVersion: 2
-    m_Bits: 1600
+    m_Bits: 1792
   speed: 12
   lifetime: 5
   impactVFXPrefab: {fileID: 0}
   impactVFXDuration: 1.5
   isHoming: 1
-  homingStrength: 1
+  homingStrength: 3
 --- !u!135 &973408828429519016
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -147,7 +147,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4699481031474668086}
   serializedVersion: 5
-  m_Mass: 0.01
+  m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}

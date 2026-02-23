@@ -2,9 +2,14 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
+    [Header("Melee Weapon")]
     [SerializeField] private BoxCollider[] hitColliders;
 
+    [Header("Projectile Weapon")]
+    [SerializeField] private Transform projectileSpawnPoint;
+
     public BoxCollider[] GetColliders() => hitColliders;
+    public Transform GetProjectileSpawn() => projectileSpawnPoint;
 
     private void Awake()
     {

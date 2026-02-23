@@ -9,8 +9,8 @@ public class WeaponData : ScriptableObject
     public string[] lightAttackNames;
     public string heavyAttackName;
 
-    [Header("Damage")]
-    public int damage;
+    [Header("Stats")]
+    public int damage = 5;
     public float heavyMultiplier = 2f;
 
     [Header("WeaponModel")]
@@ -19,5 +19,10 @@ public class WeaponData : ScriptableObject
     [Header("Ranged")]
     public bool isRanged;
     public GameObject projectilePrefab;
-    public Transform projectileSpawn;
+
+    [Header("Audio")]
+    public AudioClip lightAttackSFX;
+    public AudioClip heavyAttackSFX;
+    public AudioClip hitSFX;
+    public AudioClip blockHitSFX;
 }
