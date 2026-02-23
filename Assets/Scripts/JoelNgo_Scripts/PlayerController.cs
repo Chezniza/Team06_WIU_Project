@@ -84,7 +84,7 @@ public class PlayerController : MonoBehaviour
         // Check if the character is sprinting - M 20 Feb
         if (!staminaSystem.IsInRecovery() && isSprinting && moveInput.sqrMagnitude > 0.1f)
         {
-            if (!staminaSystem.UseStamina(20f * Time.deltaTime))
+            if (!staminaSystem.UseStamina(25f * Time.deltaTime))
             {
                 isSprinting = false;
             }
@@ -112,7 +112,6 @@ public class PlayerController : MonoBehaviour
         finalMove.y = jumpVelocity.y;
 
         _characterController.Move(finalMove * Time.deltaTime);
-
 
 
 
