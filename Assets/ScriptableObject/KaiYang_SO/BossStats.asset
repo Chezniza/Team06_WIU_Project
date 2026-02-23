@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eff5ef9754e5ddf47a167eac5399e14a, type: 3}
   m_Name: BossStats
   m_EditorClassIdentifier: Assembly-CSharp::Stats
-  Health: 300
-  damage: 50
+  Health: 200
+  damage: 10

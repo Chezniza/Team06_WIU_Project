@@ -133,12 +133,12 @@
             if (isBoss && distance <= rangedRange)
             {
                 // Phase 2 boss prefers spell over ranged shot
-                if (currentPhase == EnemyPhase.Phase2 && spellTimer <= 0f)
+                if (!isBlocking && currentPhase == EnemyPhase.Phase2 && spellTimer <= 0f)
                 {
                     StartCoroutine(SpellAttack());
                     return;
                 }
-                if (rangedTimer <= 0f && projectilePrefab != null && isBlocking == false)
+                if (!isBlocking && rangedTimer <= 0f && projectilePrefab != null && isBlocking == false)
                 {
                     StartCoroutine(RangedAttack());
                     return;
@@ -231,7 +231,12 @@
 
             yield return new WaitForSeconds(0.5f);      // telegraph windup
 
-            if (currentPhase == EnemyPhase.Phase2)
+        if (isBlocking)
+        {
+            isActing = false;
+            yield break;
+        }
+        if (currentPhase == EnemyPhase.Phase2)
             {
                 // Fan burst: centre + two angled projectiles
                 FireProjectile(burstProjectilePrefab ?? projectilePrefab);

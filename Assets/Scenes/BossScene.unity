@@ -1194,7 +1194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ed5375db4f6a2469eed031f050ce60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
-  stats: {fileID: 11400000, guid: 89f84c86ffb4d3f48b7ecac9be237898, type: 2}
+  stats: {fileID: 11400000, guid: 7b889aea434fcdb429b242f4bc503058, type: 2}
   damageColor: {r: 1, g: 0, b: 0, a: 1}
   damageEffectDuration: 0.5
   _animator: {fileID: 167049062}
