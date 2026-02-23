@@ -4,7 +4,7 @@ using UnityEngine;
 // ============================================================
 //  Projectiles.cs  —  SteamForge / Team 06
 //  Attach to your projectile prefab.
-//  Requires: Rigidbody, Collider on prefab.
+//  Requires: Rigidbody, Collider (set as Trigger) on prefab.
 // ============================================================
 
 public class Projectiles : MonoBehaviour
@@ -23,12 +23,8 @@ public class Projectiles : MonoBehaviour
     [SerializeField] private float impactVFXDuration = 1.5f;
 
     [Header("Homing")]
-    [SerializeField] private bool  isHoming      = false;
+    [SerializeField] private bool isHoming = false;
     [SerializeField] private float homingStrength = 3f;
-
-    [Header("Hit Detection")]
-    [SerializeField] private float hitRadius = 0.3f;   // tune to match your projectile size
-    [SerializeField] private LayerMask m_LayerMask;        // set to your Player layer in Inspector
 
     // ─────────────────────────────────────────────
     // PRIVATE STATE
@@ -38,7 +34,7 @@ public class Projectiles : MonoBehaviour
     private Vector3 direction;
     private Rigidbody rb;
     private Transform target;
-    private bool      isReady = false;
+    private bool isReady = false;
 
     // ─────────────────────────────────────────────
     // UNITY LIFECYCLE
@@ -53,6 +49,7 @@ public class Projectiles : MonoBehaviour
             rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
+        // Use baseDamage as default — Init() overrides this when EnemyAI fires it
         damage = baseDamage;
 
         Destroy(gameObject, lifetime);
@@ -60,7 +57,7 @@ public class Projectiles : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isReady || hasHit) return;
+        if (!isReady) return;
 
         if (isHoming && target != null)
         {
@@ -73,43 +70,37 @@ public class Projectiles : MonoBehaviour
 
         if (direction != Vector3.zero)
             transform.rotation = Quaternion.LookRotation(direction);
-
-       
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, hitRadius, m_LayerMask);
-
-       
     }
-    public void EnableHoming()
-    {
 
-        isHoming = true;
-    }
     // ─────────────────────────────────────────────
     // INIT — called by EnemyAI right after Instantiate
     // ─────────────────────────────────────────────
 
     public void Init(int dmg, Vector3 dir, Transform target = null)
     {
-        damage    = dmg;              // overrides baseDamage with EnemyAI's rangedDamage
+        damage = dmg;              // overrides baseDamage with EnemyAI's rangedDamage
         direction = dir.normalized;
-        isReady   = true;
+        isReady = true;
     }
 
-  
+    // ─────────────────────────────────────────────
+    // COLLISION
+    // ─────────────────────────────────────────────
+
     private void OnTriggerEnter(Collider other)
     {
         if (IsInLayerMask(other.transform, m_LayerMask))
         {
-            if (other.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
+            // FIX 1: GetComponentInParent instead of GetComponent
+            //        Damageable may be on a parent GameObject, not the collider itself
+            Damageable damageable = other.GetComponentInParent<Damageable>();
+
+            if (damageable != null)
             {
                 // FIX 2: Convert float damage to int to match TakeDamage(int)
-              //  int dmgInt = Mathf.RoundToInt(damage);
+                //  int dmgInt = Mathf.RoundToInt(damage);
                 Debug.Log($"[Projectile] Hit gameObject for {damage})");
                 damageable.TakeDamage(damage);
-                SpawnImpactVFX();
-                hasHit = true;
-                Destroy(gameObject);
-                return;
             }
             else
             {
@@ -129,7 +120,10 @@ public class Projectiles : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    public void EnableHoming()
+    {
+        isHoming = true;
+    }
     // ─────────────────────────────────────────────
     // HELPERS
     // ─────────────────────────────────────────────
@@ -141,6 +135,7 @@ public class Projectiles : MonoBehaviour
         Destroy(vfx, impactVFXDuration);
     }
 
+    // Manual damage setter — useful for player-fired projectiles
     public void SetDamage(int dmg) => damage = dmg;
     public float GetDamage() => damage;
 
@@ -148,9 +143,6 @@ public class Projectiles : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position, direction * 2f);
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, hitRadius);
     }
 
     public bool IsInLayerMask(Transform other, LayerMask mask)
