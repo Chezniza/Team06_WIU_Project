@@ -1271,43 +1271,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3943d35efe846ad409da1db2c86cdaf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackHandler
-  _animator: {fileID: 167049062}
-  _characterController: {fileID: 167049061}
-  _combatHitResolver: {fileID: 0}
-  damageable: {fileID: 167049058}
-  weapons:
-  - {fileID: 11400000, guid: 4ed750c736a515847baa841c5c36d238, type: 2}
-  attackEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 167049060}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 0a52c532ce8762743bcf04889f02b029, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  heavyAttackEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 167049060}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 9f342705f03e38b468724e144320ce0c, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  _isBlock: 0
 --- !u!114 &167049066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1374,14 +1337,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7b0aaf3aef06e545af3d721ebc17da6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatHitResolver
-  m_LayerMask:
+  layerMask:
     serializedVersion: 2
     m_Bits: 256
-  source: {fileID: 934174952}
+  impulse: {fileID: 934174952}
+  characterController: {fileID: 1454366941}
   attackHitEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1454366946}
+      - m_Target: {fileID: 167049059}
         m_TargetAssemblyTypeName: AudioPlayer, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 2
@@ -1396,7 +1360,7 @@ MonoBehaviour:
   blockHitEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1454366946}
+      - m_Target: {fileID: 167049059}
         m_TargetAssemblyTypeName: AudioPlayer, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 2
@@ -1411,7 +1375,7 @@ MonoBehaviour:
   staggerEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1454366946}
+      - m_Target: {fileID: 167049059}
         m_TargetAssemblyTypeName: AudioPlayer, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 2
@@ -1423,6 +1387,73 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &167049069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167049056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce03133a8d4c78747a94acf0cefee65a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockController
+  parryTime: 0.2
+  blockAngle: 120
+--- !u!114 &167049070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167049056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd3bf9392ea9ca747a1a386304ffc320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  weaponVisual: {fileID: 167049066}
+  weapons:
+  - {fileID: 11400000, guid: 4ed750c736a515847baa841c5c36d238, type: 2}
+--- !u!114 &167049071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167049056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7b0aaf3aef06e545af3d721ebc17da6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitDetector
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  impulse: {fileID: 934174952}
+  characterController: {fileID: 1454366941}
+  attackHitEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  blockHitEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  staggerEvent:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &167049072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167049056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aa659db426571442baa5d1b5d89e53e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComboController
 --- !u!1 &170286095
 GameObject:
   m_ObjectHideFlags: 0
@@ -3042,6 +3073,18 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       insertIndex: -1
       addedObject: {fileID: 167049068}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 167049072}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 167049071}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 167049070}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 167049069}
   m_SourcePrefab: {fileID: 100100000, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
 --- !u!1 &514339401
 GameObject:
@@ -6762,43 +6805,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3943d35efe846ad409da1db2c86cdaf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackHandler
-  _animator: {fileID: 1323671597}
-  _characterController: {fileID: 1323671596}
-  _combatHitResolver: {fileID: 0}
-  damageable: {fileID: 1323671593}
-  weapons:
-  - {fileID: 11400000, guid: 4ed750c736a515847baa841c5c36d238, type: 2}
-  attackEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1323671595}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 0a52c532ce8762743bcf04889f02b029, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  heavyAttackEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1323671595}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 9f342705f03e38b468724e144320ce0c, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  _isBlock: 0
 --- !u!114 &1323671593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6973,14 +6979,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7b0aaf3aef06e545af3d721ebc17da6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatHitResolver
-  m_LayerMask:
+  layerMask:
     serializedVersion: 2
     m_Bits: 256
-  source: {fileID: 934174952}
+  impulse: {fileID: 934174952}
+  characterController: {fileID: 1454366941}
   attackHitEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1454366946}
+      - m_Target: {fileID: 1323671594}
         m_TargetAssemblyTypeName: AudioPlayer, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 2
@@ -6995,7 +7002,7 @@ MonoBehaviour:
   blockHitEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1454366946}
+      - m_Target: {fileID: 1323671594}
         m_TargetAssemblyTypeName: AudioPlayer, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 2
@@ -7010,7 +7017,7 @@ MonoBehaviour:
   staggerEvent:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1454366946}
+      - m_Target: {fileID: 1323671594}
         m_TargetAssemblyTypeName: AudioPlayer, Assembly-CSharp
         m_MethodName: PlaySound
         m_Mode: 2
@@ -7022,6 +7029,47 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1323671600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323671588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce03133a8d4c78747a94acf0cefee65a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockController
+  parryTime: 0.2
+  blockAngle: 120
+--- !u!114 &1323671601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323671588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aa659db426571442baa5d1b5d89e53e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComboController
+--- !u!114 &1323671602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323671588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd3bf9392ea9ca747a1a386304ffc320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  weaponVisual: {fileID: 1323671590}
+  weapons:
+  - {fileID: 11400000, guid: 4ed750c736a515847baa841c5c36d238, type: 2}
 --- !u!1 &1343075743
 GameObject:
   m_ObjectHideFlags: 0
@@ -7613,10 +7661,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7b0aaf3aef06e545af3d721ebc17da6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatHitResolver
-  m_LayerMask:
+  layerMask:
     serializedVersion: 2
     m_Bits: 64
-  source: {fileID: 934174952}
+  impulse: {fileID: 934174952}
+  characterController: {fileID: 1454366941}
   attackHitEvent:
     m_PersistentCalls:
       m_Calls:
@@ -7662,6 +7711,49 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1454366948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454366938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce03133a8d4c78747a94acf0cefee65a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlockController
+  parryTime: 0.2
+  blockAngle: 120
+--- !u!114 &1454366949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454366938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd3bf9392ea9ca747a1a386304ffc320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  weaponVisual: {fileID: 1454366943}
+  weapons:
+  - {fileID: 11400000, guid: 4ed750c736a515847baa841c5c36d238, type: 2}
+  - {fileID: 11400000, guid: 05b40e2952ff7574aa98d6454a5b5d77, type: 2}
+  - {fileID: 11400000, guid: 14bb8d776ac1a99449ce448aa8ec4cfa, type: 2}
+--- !u!114 &1454366950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454366938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aa659db426571442baa5d1b5d89e53e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComboController
 --- !u!1 &1467686671
 GameObject:
   m_ObjectHideFlags: 0
@@ -7904,6 +7996,8 @@ MonoBehaviour:
   _playerController: {fileID: 934174956}
   damageable: {fileID: 934174959}
   _attackHandler: {fileID: 934174953}
+  _weaponController: {fileID: 1454366949}
+  _blockController: {fileID: 1454366948}
   _virtualCamera: {fileID: 164084046}
   _freeLookCamera: {fileID: 163825082}
   holdAttackInterval: 0.3
@@ -8635,7 +8729,16 @@ PrefabInstance:
       addedObject: {fileID: 1323671589}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1323671601}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1323671599}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1323671600}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1323671602}
   m_SourcePrefab: {fileID: 100100000, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
 --- !u!43 &1565022248
 Mesh:
@@ -9027,6 +9130,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6490923059445092084, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      propertyPath: _combatHitResolver
+      value: 
+      objectReference: {fileID: 1454366947}
+    - target: {fileID: 6490923059445092084, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       propertyPath: weapons.Array.size
       value: 3
       objectReference: {fileID: 0}
@@ -9073,7 +9180,16 @@ PrefabInstance:
       addedObject: {fileID: 1454366943}
     - targetCorrespondingSourceObject: {fileID: 2670233488658560536, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1454366950}
+    - targetCorrespondingSourceObject: {fileID: 2670233488658560536, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1454366947}
+    - targetCorrespondingSourceObject: {fileID: 2670233488658560536, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1454366949}
+    - targetCorrespondingSourceObject: {fileID: 2670233488658560536, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1454366948}
   m_SourcePrefab: {fileID: 100100000, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
 --- !u!1 &1705502371 stripped
 GameObject:
