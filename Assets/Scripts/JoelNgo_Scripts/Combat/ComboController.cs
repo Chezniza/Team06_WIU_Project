@@ -25,6 +25,8 @@ public class ComboController : MonoBehaviour
 
     public void RequestLightAttack()
     {
+        Debug.Log("request light atk");
+
         lightQueued = true;
 
         if (!isAttack)
@@ -56,6 +58,7 @@ public class ComboController : MonoBehaviour
         if (weaponData.isRanged)
         {
             weapon.FireProjectile(Camera.main);
+            ResetCombo();
             yield break;
         }
 
