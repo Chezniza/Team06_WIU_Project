@@ -346,7 +346,7 @@ public class AttackHandler : MonoBehaviour
         AttackHandler targetAttackHandler = target.GetComponent<AttackHandler>();
 
         // If AI, use a specialised stagger function
-        if (target.TryGetComponent<EnemyAI>(out EnemyAI ai))
+        if (target.TryGetComponent<EnemyBase>(out EnemyBase ai))
         {
             ai.BreakBlockAndStagger();
             staggerEvent.Invoke();

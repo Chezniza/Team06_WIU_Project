@@ -106,17 +106,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectiles
   baseDamage: 15
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  m_Ignore:
+    serializedVersion: 2
+    m_Bits: 1600
   speed: 12
   lifetime: 5
   impactVFXPrefab: {fileID: 0}
   impactVFXDuration: 1.5
-  homingTarget: {fileID: 0}
   isHoming: 1
   homingStrength: 1
-  hitRadius: 0.1
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!135 &973408828429519016
 SphereCollider:
   m_ObjectHideFlags: 0
