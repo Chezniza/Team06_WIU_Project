@@ -11,6 +11,8 @@ public class Projectiles : MonoBehaviour
 {
     [Header("Damage")]
     [SerializeField] private int baseDamage = 15; // default — overridden by EnemyAI.Init()
+    [SerializeField] private LayerMask m_LayerMask;
+    [SerializeField] private LayerMask m_Ignore; // prevent destroy on hit for certain object
 
     [Header("Movement")]
     [SerializeField] private float speed = 12f;
@@ -20,9 +22,8 @@ public class Projectiles : MonoBehaviour
     [SerializeField] private GameObject impactVFXPrefab;
     [SerializeField] private float impactVFXDuration = 1.5f;
 
-    [Header("Homing (Boss Phase 2)")]
-    [SerializeField] private Transform homingTarget;
-    [SerializeField] private bool isHoming = false;
+    [Header("Homing")]
+    [SerializeField] private bool  isHoming      = false;
     [SerializeField] private float homingStrength = 3f;
 
     [Header("Hit Detection")]
@@ -36,9 +37,8 @@ public class Projectiles : MonoBehaviour
     private int damage;
     private Vector3 direction;
     private Rigidbody rb;
-    private Transform player;
-    private bool isReady = false;
-    private bool hasHit = false;  
+    private Transform target;
+    private bool      isReady = false;
 
     // ─────────────────────────────────────────────
     // UNITY LIFECYCLE
@@ -62,11 +62,10 @@ public class Projectiles : MonoBehaviour
     {
         if (!isReady || hasHit) return;
 
-        // ── Homing steering ──────────────────────────────────
-        if (isHoming && homingTarget != null)
+        if (isHoming && target != null)
         {
-            Vector3 toTarget = (homingTarget.position - transform.position).normalized;
-            direction = Vector3.Lerp(direction, toTarget, homingStrength * Time.fixedDeltaTime);
+            Vector3 toPlayer = (target.position - transform.position).normalized;
+            direction = Vector3.Lerp(direction, toPlayer, homingStrength * Time.fixedDeltaTime);
             direction.Normalize();
         }
 
@@ -89,60 +88,46 @@ public class Projectiles : MonoBehaviour
     // INIT — called by EnemyAI right after Instantiate
     // ─────────────────────────────────────────────
 
-
-    public void Init(int dmg, Vector3 dir, Transform aimPoint = null)
+    public void Init(int dmg, Vector3 dir, Transform target = null)
     {
-        damage = dmg;
+        damage    = dmg;              // overrides baseDamage with EnemyAI's rangedDamage
         direction = dir.normalized;
-        isReady = true;
-        isHoming = false;
-        homingTarget = aimPoint;
-        if (homingTarget == null)
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null) homingTarget = playerObj.transform;
-        }
+        isReady   = true;
     }
 
   
     private void OnTriggerEnter(Collider other)
     {
-        if (hasHit) return;
-
-        // Ignore enemies, boss, and other projectiles
-        if (other.CompareTag("Enemy") || other.CompareTag("Boss") || other.CompareTag("Projectile"))
-            return;
-
-        if (other.CompareTag("Player"))
+        if (IsInLayerMask(other.transform, m_LayerMask))
         {
             if (other.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
             {
-                if (targetAttackHandler.IsBlocking())
-                {
-                    Debug.Log("[Projectile] Blocked by player.");
-                    SpawnImpactVFX();
-                    hasHit = true;
-                    Destroy(gameObject);
-                    return;
-                }
-            }
-
-
-            if (other.TryGetComponent<Damageable>(out Damageable damageable))
-            {
-                Debug.Log($"[Projectile] Hit player for {damage}");
+                // FIX 2: Convert float damage to int to match TakeDamage(int)
+              //  int dmgInt = Mathf.RoundToInt(damage);
+                Debug.Log($"[Projectile] Hit gameObject for {damage})");
                 damageable.TakeDamage(damage);
                 SpawnImpactVFX();
                 hasHit = true;
                 Destroy(gameObject);
                 return;
             }
+            else
+            {
+                // This warning will appear in Console if the tag or component is wrong
+                Debug.LogWarning($"[Projectile] Hit '{other.name}' with layer but NO Damageable found on it or any parent!");
+            }
+
+            SpawnImpactVFX();
+            Destroy(gameObject);
+            return;
         }
 
-        // Hit environment
-        SpawnImpactVFX();
-        hasHit = true;
-        Destroy(gameObject);
+        // Destroy on environment — ignore other enemies, boss, and other projectiles
+        if (!IsInLayerMask(other.transform, m_Ignore))
+        {
+            SpawnImpactVFX();
+            Destroy(gameObject);
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -166,5 +151,10 @@ public class Projectiles : MonoBehaviour
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, hitRadius);
+    }
+
+    public bool IsInLayerMask(Transform other, LayerMask mask)
+    {
+        return (mask.value & (1 << other.gameObject.layer)) != 0;
     }
 }

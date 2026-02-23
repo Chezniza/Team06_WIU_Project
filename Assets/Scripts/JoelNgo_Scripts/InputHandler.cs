@@ -77,6 +77,12 @@ public class InputHandler : MonoBehaviour
             _attackHandler.StartBlock();
         else
             _attackHandler.StopBlock();
+
+        // Change weapon
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            _attackHandler.CycleWeapon();
+        }
     }
 
     private void AttackInputs()
