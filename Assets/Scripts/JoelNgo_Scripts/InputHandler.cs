@@ -10,7 +10,10 @@ public class InputHandler : MonoBehaviour
     [SerializeField] private PlayerInput _playerInput;
     [SerializeField] private PlayerController _playerController;
     [SerializeField] private Damageable damageable;
+    // Combat
     [SerializeField] private AttackHandler _attackHandler;
+    [SerializeField] private WeaponController _weaponController;
+    [SerializeField] private BlockController _blockController;
 
     // Camera
     [SerializeField] private CinemachineCamera _virtualCamera;
@@ -74,9 +77,15 @@ public class InputHandler : MonoBehaviour
 
         // Block input
         if (_blockAction.IsPressed())
-            _attackHandler.StartBlock();
+            _blockController.StartBlock();
         else
-            _attackHandler.StopBlock();
+            _blockController.StopBlock();
+
+        // Change weapon
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            _weaponController.CycleWeapon();
+        }
     }
 
     private void AttackInputs()

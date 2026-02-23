@@ -2,13 +2,15 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using static Unity.Collections.AllocatorManager;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private PlayerInput _playerInput;
-    [SerializeField] private Animator _animator;
-    [SerializeField] private CharacterController _characterController;
-    [SerializeField] private AttackHandler _attackHandler;
+    private Animator _animator;
+    private CharacterController _characterController;
+    private ComboController _comboController;
+    private BlockController _blockController;
 
     /*
     * Stamina system reference
@@ -39,6 +41,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpHeight = 2f;
     private bool _jumpLanded = true;
 
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+        _characterController = GetComponent<CharacterController>();
+        _comboController = GetComponent<ComboController>();
+        _blockController = GetComponent<BlockController>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -58,7 +68,7 @@ public class PlayerController : MonoBehaviour
         if (isJumping && _characterController.isGrounded && _jumpLanded)
         {
             // Prevent jumping while attacking and blocking
-            if (_attackHandler.IsAttacking() || _attackHandler.IsBlocking())
+            if (_comboController.IsAttacking || _blockController.IsBlocking)
                 return;
 
             jumpVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -70,7 +80,7 @@ public class PlayerController : MonoBehaviour
         moveDirection.y = jumpVelocity.y;
 
         // Prevent movement while attacking
-        if (_attackHandler.IsAttacking() || _attackHandler.IsBlocking())
+        if (_comboController.IsAttacking || _blockController.IsBlocking)
         {
             moveDirection.x = 0;
             moveDirection.z = 0;

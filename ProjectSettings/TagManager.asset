@@ -14,11 +14,11 @@ TagManager:
   - Floor
   - Water
   - UI
-  - Target
+  - Enemy
   - Wall
   - Player
-  - 
-  - 
+  - Boss
+  - Projectile
   - 
   - 
   - 
