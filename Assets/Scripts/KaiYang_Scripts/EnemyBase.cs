@@ -1,11 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-// ============================================================
-//  EnemyBase.cs
-//  Abstract base shared by MinionAI and BossAI.
-//  Handles: references, movement, blocking, gravity, gizmos.
-// ============================================================
+
 
 public abstract class EnemyBase : MonoBehaviour
 {

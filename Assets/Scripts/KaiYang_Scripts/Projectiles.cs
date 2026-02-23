@@ -76,10 +76,11 @@ public class Projectiles : MonoBehaviour
     // INIT — called by EnemyAI right after Instantiate
     // ─────────────────────────────────────────────
 
-    public void Init(int dmg, Vector3 dir, Transform target = null)
+    public void Init(int dmg, Vector3 dir, Transform homingTarget = null)
     {
-        damage = dmg;              // overrides baseDamage with EnemyAI's rangedDamage
+        damage = dmg;
         direction = dir.normalized;
+        this.target = homingTarget;  // stored but homing only activates if EnableHoming() is called
         isReady = true;
     }
 
@@ -124,6 +125,12 @@ public class Projectiles : MonoBehaviour
     public void EnableHoming()
     {
         isHoming = true;
+        // Find player now if Init() didn't receive a target
+        if (target == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) target = playerObj.transform;
+        }
     }
     // ─────────────────────────────────────────────
     // HELPERS
