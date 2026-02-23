@@ -2948,11 +2948,11 @@ GameObject:
   - component: {fileID: 7605286638146443301}
   - component: {fileID: 2843521004320603187}
   - component: {fileID: 2297612304819080862}
-  - component: {fileID: 6490923059445092084}
   - component: {fileID: 6874566067761922598}
   - component: {fileID: 2029742272013762760}
   - component: {fileID: 4724299305521355094}
   - component: {fileID: 6514633786582336684}
+  - component: {fileID: 6490923059445092084}
   m_Layer: 8
   m_Name: Knight
   m_TagString: Player
@@ -3103,106 +3103,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &6490923059445092084
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2670233488658560536}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3943d35efe846ad409da1db2c86cdaf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AttackHandler
-  _animator: {fileID: 8693477035451217624}
-  source: {fileID: 6874566067761922598}
-  _characterController: {fileID: 0}
-  weaponVisual: {fileID: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 64
-  stats: {fileID: 11400000, guid: 8b68bf777e869f944bd987b189af9a35, type: 2}
-  damageable: {fileID: 6514633786582336684}
-  parryTime: 0.2
-  blockAngle: 120
-  currentWeapon: {fileID: 0}
-  attackEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2029742272013762760}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 0a52c532ce8762743bcf04889f02b029, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  heavyAttackEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2029742272013762760}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 9f342705f03e38b468724e144320ce0c, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  attackHitEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2029742272013762760}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 2b5dfe17286ccad4b84b2f99c84275ab, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  blockHitEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2029742272013762760}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 9fa5b30808612b5458af0b3e7c3f0298, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  staggerEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2029742272013762760}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: PlayOneShot
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 13477d1f912e6574b9b82b85dbb6e50e, type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  _isBlock: 0
 --- !u!114 &6874566067761922598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3383,6 +3283,54 @@ MonoBehaviour:
   damageEffectDuration: 0.5
   _animator: {fileID: 8693477035451217624}
   _healthbar: {fileID: 1669349053370163474}
+--- !u!114 &6490923059445092084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2670233488658560536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3943d35efe846ad409da1db2c86cdaf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackHandler
+  _animator: {fileID: 8693477035451217624}
+  _characterController: {fileID: 0}
+  _combatHitResolver: {fileID: 0}
+  damageable: {fileID: 6514633786582336684}
+  weapons: []
+  attackEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2029742272013762760}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: PlayOneShot
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 8300000, guid: 0a52c532ce8762743bcf04889f02b029, type: 3}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  heavyAttackEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2029742272013762760}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: PlayOneShot
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 8300000, guid: 9f342705f03e38b468724e144320ce0c, type: 3}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  _isBlock: 0
 --- !u!1 &2713042902778260867
 GameObject:
   m_ObjectHideFlags: 0
