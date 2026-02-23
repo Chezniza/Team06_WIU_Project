@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using Unity.Cinemachine;
@@ -13,11 +14,13 @@ public class AttackHandler : MonoBehaviour
     [SerializeField] private CharacterController _characterController;
     private WeaponVisual _weaponVisual;
     [SerializeField] private LayerMask m_LayerMask;
+
     // Stats
     [SerializeField] Stats stats;
     [SerializeField] private Damageable damageable;
     [SerializeField] float parryTime = 0.2f;
     [SerializeField] float blockAngle = 120f;
+
     // Held weapons
     [SerializeField] private WeaponData[] weapons;
     // Current weapon
@@ -28,8 +31,10 @@ public class AttackHandler : MonoBehaviour
     private string[] _attackNames;
     private string _heavyAttackName;
     private BoxCollider[] detectors;
+    private Transform projectileSpawn;
     private int damage;
 
+    // Events
     public UnityEvent attackEvent;
     public UnityEvent heavyAttackEvent;
     public UnityEvent attackHitEvent;
@@ -162,7 +167,7 @@ public class AttackHandler : MonoBehaviour
             }
         }
 
-        // Push velocity
+        // Push velocity handler
         if (externalVelocity.magnitude > 0.01f)
         {
             _characterController.Move(externalVelocity * Time.deltaTime);
@@ -188,7 +193,7 @@ public class AttackHandler : MonoBehaviour
         // Ranged weapon
         if (currentWeapon.isRanged)
         {
-            //FireProjectile();
+            FireProjectile();
         }
         // Melee weapon
         else
@@ -233,6 +238,30 @@ public class AttackHandler : MonoBehaviour
         }
 
         ResetCombo();
+    }
+
+    public void FireProjectile()
+    {
+        if (currentWeapon.projectilePrefab == null || projectileSpawn == null)
+            return;
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Vector3 targetPoint = ray.origin + ray.direction * 50f;
+
+        Vector3 direction = (targetPoint - projectileSpawn.position).normalized;
+
+        GameObject proj = Instantiate(
+            currentWeapon.projectilePrefab,
+            projectileSpawn.position,
+            Quaternion.LookRotation(direction)
+        );
+
+        // initialize projectile
+        if (proj.TryGetComponent<Projectiles>(out var p))
+        {
+            p.Init(currentWeapon.damage, direction);
+        }
     }
 
     private bool IsCurrentAnimationReadyForNextStep(string name)
@@ -354,6 +383,7 @@ public class AttackHandler : MonoBehaviour
 
         equippedWeapon = _weaponVisual.EquipWeapon(data.modelPrefab);
         detectors = equippedWeapon.GetColliders();
+        projectileSpawn = equippedWeapon.GetProjectileSpawn();
 
         damage = data.damage;
         _attackNames = data.lightAttackNames;

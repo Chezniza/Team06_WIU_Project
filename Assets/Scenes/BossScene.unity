@@ -6802,8 +6802,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3941622528486384413, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4292624986671188532, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6005047339252049285, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6009004777921848695, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6490923059445092084, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
@@ -6820,7 +6832,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 4ed750c736a515847baa841c5c36d238, type: 2}
     - target: {fileID: 6490923059445092084, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       propertyPath: weapons.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6490923059445092084, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       propertyPath: _characterController
@@ -6834,6 +6846,10 @@ PrefabInstance:
       propertyPath: 'weapons.Array.data[1]'
       value: 
       objectReference: {fileID: 11400000, guid: 05b40e2952ff7574aa98d6454a5b5d77, type: 2}
+    - target: {fileID: 6490923059445092084, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      propertyPath: 'weapons.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 14bb8d776ac1a99449ce448aa8ec4cfa, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

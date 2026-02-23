@@ -19,5 +19,4 @@ public class WeaponData : ScriptableObject
     [Header("Ranged")]
     public bool isRanged;
     public GameObject projectilePrefab;
-    public Transform projectileSpawn;
 }
