@@ -2,7 +2,6 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using static Unity.Collections.AllocatorManager;
 
 public class PlayerController : MonoBehaviour
 {
@@ -106,7 +105,6 @@ public class PlayerController : MonoBehaviour
 
 
 
-
         if (staminaSystem.IsInRecovery())
         {
             currentSpeed = exhaustedSpeed;
@@ -115,7 +113,6 @@ public class PlayerController : MonoBehaviour
         {
             currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
         }
-
 
 
         Vector3 finalMove = moveDirection * currentSpeed;
