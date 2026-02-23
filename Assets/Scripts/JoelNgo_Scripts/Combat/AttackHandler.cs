@@ -9,20 +9,15 @@ using UnityEngine.SceneManagement;
 
 public class AttackHandler : MonoBehaviour
 {
+    // References
     [SerializeField] private Animator _animator;
-    [SerializeField] private CinemachineImpulseSource source;
     [SerializeField] private CharacterController _characterController;
-    private WeaponVisual _weaponVisual;
-    [SerializeField] private LayerMask m_LayerMask;
-
-    // Stats
-    [SerializeField] Stats stats;
+    [SerializeField] private AttackHitResolver _combatHitResolver;
     [SerializeField] private Damageable damageable;
-    [SerializeField] float parryTime = 0.2f;
-    [SerializeField] float blockAngle = 120f;
+    [SerializeField] private WeaponData[] weapons; // Held weapons / inventory
 
-    // Held weapons
-    [SerializeField] private WeaponData[] weapons;
+    // Weapon visual
+    private WeaponVisual _weaponVisual;
     // Current weapon
     private WeaponData currentWeapon;
     private Weapon equippedWeapon;
@@ -30,16 +25,11 @@ public class AttackHandler : MonoBehaviour
     // Weapon information
     private string[] _attackNames;
     private string _heavyAttackName;
-    private BoxCollider[] detectors;
     private Transform projectileSpawn;
-    private int damage;
 
     // Events
     public UnityEvent attackEvent;
     public UnityEvent heavyAttackEvent;
-    public UnityEvent attackHitEvent;
-    public UnityEvent blockHitEvent;
-    public UnityEvent staggerEvent;
 
     bool _isAttack;
     public bool _isBlock;
@@ -59,113 +49,19 @@ public class AttackHandler : MonoBehaviour
         _isBlock = false;
         _attackStep = 0;
         _isHeavyAttacking = false;
-
-        _weaponVisual = this.GetComponent<WeaponVisual>();
-
-        currentWeapon = weapons[0];
-
-        if (_weaponVisual != null)
-        {
-            EquipWeapon(currentWeapon);
-
-            // Update current weapon data
-            damage = currentWeapon.damage;
-            _attackNames = currentWeapon.lightAttackNames;
-            _heavyAttackName = currentWeapon.heavyAttackName;
-
-            DisableCollider();
-        }
-        
-    }
-
-    private void EnableCollider(int index)
-    {
-        equippedWeapon.EnableCollider(index);
-
-        if (_isHeavyAttacking)
-            heavyAttackEvent.Invoke();
-        else
-            attackEvent.Invoke();
-    }
-    private void DisableCollider()
-    {
-        equippedWeapon.DisableColliders();
     }
 
     private void Update()
     {
+        // Stop attack when dead
         if (damageable.GetHealth() <= 0)
             return;
 
+        // Block
         UpdateBlock();
-
-        foreach (var collider in detectors)
-        {
-            if (collider.enabled)
-            {
-                Vector3 center = collider.transform.TransformPoint(collider.center);
-                Vector3 halfExtents = Vector3.Scale(collider.size * 0.5f, collider.transform.lossyScale);
-
-                Collider[] hitColliders = Physics.OverlapBox(
-                    center,
-                    halfExtents,
-                    collider.transform.rotation,
-                    m_LayerMask
-                );
-
-                // Hit logic
-                for (int i = 0; i < hitColliders.Length; i++)
-                {
-                    GameObject target = hitColliders[i].gameObject;
-
-                    // Check if target is blocking
-                    if (target.TryGetComponent<AttackHandler>(out AttackHandler targetAttackHandler))
-                    {
-                        if (targetAttackHandler.IsBlocking() && IsFacingTarget(target.transform, this.transform))
-                        {
-                            // Get target's block time
-                            float targetBlockTime = targetAttackHandler.GetBlockTime();
-
-                            // Get parried if target blocked precisely
-                            if (targetBlockTime < parryTime)
-                            {
-                                Stagger(this.gameObject);
-                                Debug.Log("Parry");
-                                return;
-                            }
-                            // Light attack hit target
-                            else if (!_isHeavyAttacking)
-                            {
-                                blockHitEvent.Invoke();
-                                source.GenerateImpulse(Camera.main.transform.forward);
-
-                                // Push target
-                                Vector3 pushDir = (target.transform.position - transform.position).normalized;
-                                targetAttackHandler.ApplyBlockPush(pushDir, 8f);
-
-                                return; // stop here to prevent damage
-                            }
-                            // Heavy attack hit target
-                            else
-                            {
-                                Stagger(target);
-                            }      
-                        }
-                    }
-
-                    // Check if target can be damaged
-                    if (target.TryGetComponent<Damageable>(out Damageable damageable))
-                    {
-                        int finalDamage = _isHeavyAttacking ? damage * 2 : damage;
-                        damageable.TakeDamage(finalDamage);
-                        collider.enabled = false; // disable damage hitbox
-                    }
-
-                    attackHitEvent.Invoke();
-                    source.GenerateImpulse(Camera.main.transform.forward);
-                }
-            }
-        }
+        
+        // Resolve hit
+        _combatHitResolver.ResolveHit(currentWeapon, equippedWeapon, _isHeavyAttacking);
 
         // Push velocity handler
         if (externalVelocity.magnitude > 0.01f)
@@ -341,68 +237,15 @@ public class AttackHandler : MonoBehaviour
         _animator.SetTrigger("Stagger");
     }
 
-    public void Stagger(GameObject target)
-    {
-        AttackHandler targetAttackHandler = target.GetComponent<AttackHandler>();
-
-        // If AI, use a specialised stagger function
-        if (target.TryGetComponent<EnemyBase>(out EnemyBase ai))
-        {
-            ai.BreakBlockAndStagger();
-            staggerEvent.Invoke();
-        }
-        else
-        {
-            targetAttackHandler.TriggerStaggerAnim();
-            targetAttackHandler.StopBlock();
-            staggerEvent.Invoke();
-        }
-    }
-
-    public bool IsFacingTarget(Transform defender, Transform attacker)
-    {
-        Vector3 toAttacker = (attacker.position - defender.position).normalized;
-        toAttacker.y = 0f;
-
-        Vector3 forward = defender.forward;
-        forward.y = 0f;
-
-        float dot = Vector3.Dot(forward, toAttacker);
-        float dotThreshold = Mathf.Cos(blockAngle * 0.5f * Mathf.Deg2Rad);
-        return dot >= dotThreshold;
-    }
+    
 
     public void ApplyBlockPush(Vector3 direction, float force)
     {
         direction.y = 0f;
         externalVelocity = direction.normalized * force;
     }
-    public void EquipWeapon(WeaponData data)
-    {
-        currentWeapon = data;
 
-        equippedWeapon = _weaponVisual.EquipWeapon(data.modelPrefab);
-        detectors = equippedWeapon.GetColliders();
-        projectileSpawn = equippedWeapon.GetProjectileSpawn();
+    public float GetParryTime() { return currentWeapon.parryTime; }
 
-        damage = data.damage;
-        _attackNames = data.lightAttackNames;
-        _heavyAttackName = data.heavyAttackName;
-    }
-
-    public void CycleWeapon()
-    {
-        if (weapons == null || weapons.Length == 0) return;
-
-        currentWeaponIndex++;
-
-        // Loop back to 0 when reaching end
-        if (currentWeaponIndex >= weapons.Length)
-            currentWeaponIndex = 0;
-
-        currentWeapon = weapons[currentWeaponIndex];
-
-        EquipWeapon(currentWeapon);
-    }
-
+    public float GetBlockAngle() { return currentWeapon.blockAngle; }
 }
