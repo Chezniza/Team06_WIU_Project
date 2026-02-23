@@ -82,15 +82,22 @@ public class PlayerController : MonoBehaviour
          */
 
         // Check if the character is sprinting - M 20 Feb
-        if (isSprinting && moveInput.sqrMagnitude > 0.1f)
+        if (!staminaSystem.IsInRecovery() && isSprinting && moveInput.sqrMagnitude > 0.1f)
         {
             if (!staminaSystem.UseStamina(20f * Time.deltaTime))
             {
                 isSprinting = false;
             }
         }
+        else if (staminaSystem.IsInRecovery())
+        {
+            isSprinting = false;
+        }
 
-        if (staminaSystem.isExhausted)
+
+
+
+        if (staminaSystem.IsInRecovery())
         {
             currentSpeed = exhaustedSpeed;
         }
@@ -99,12 +106,13 @@ public class PlayerController : MonoBehaviour
             currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
         }
 
+
+
         Vector3 finalMove = moveDirection * currentSpeed;
         finalMove.y = jumpVelocity.y;
 
         _characterController.Move(finalMove * Time.deltaTime);
 
-        
 
 
 
@@ -151,7 +159,17 @@ public class PlayerController : MonoBehaviour
     }
 
     public void UpdateMoveInput(Vector2 v) { moveInput = v; }
-    public void UpdateSprintInput(bool v) { isSprinting = v; }
+    public void UpdateSprintInput(bool v)
+    {
+        // If exhausted, completely ignore sprint input
+        if (staminaSystem.isExhausted)
+        {
+            isSprinting = false;
+            return;
+        }
+
+        isSprinting = v;
+    }
     public void UpdateJumpInput(bool v) { isJumping = v; }
 
     public void AddVerticalVelocity(float v) { jumpVelocity.y = v; }
