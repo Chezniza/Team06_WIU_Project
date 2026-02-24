@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df78de5d92cd92446affcd577564e097, type: 3}
-  m_Name: TestL
+  m_Name: TestPants
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: TestL
-  description: test test L shape
-  icon: {fileID: -5049782452158657568, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
-  itemType: 0
-  rarity: 0
-  shape: 010001000101
+  itemName: TestPants
+  description: test
+  icon: {fileID: 5908195551155024309, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
+  itemType: 3
+  rarity: 3
+  shape: 01010101
   shapeWidth: 2
-  shapeHeight: 3
+  shapeHeight: 2
   statValue: 0
   weight: 1
   healAmount: 0

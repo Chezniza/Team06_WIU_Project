@@ -3,40 +3,40 @@ using UnityEngine;
 
 public class EquipmentSlots
 {
-    private Dictionary<ArmourSlot, InventoryItem> equipped = new Dictionary<ArmourSlot, InventoryItem>();
-
-    public EquipmentSlots()
+    // Keyed by ItemType — only armour types are valid keys here
+    private Dictionary<ItemType, InventoryItem> _equipped = new Dictionary<ItemType, InventoryItem>()
     {
-        foreach (ArmourSlot slot in System.Enum.GetValues(typeof(ArmourSlot)))
-            if (slot != ArmourSlot.None)
-                equipped[slot] = null;
-    }
+        { ItemType.Helmet,     null },
+        { ItemType.Chestplate, null },
+        { ItemType.Pants,      null },
+        { ItemType.Boots,      null },
+        { ItemType.Gauntlets,  null },
+    };
 
-    // Equip item into its slot. Returns any previously equipped item (to put back in inventory).
+    // Equip item, returns displaced item or null
     public InventoryItem Equip(InventoryItem item)
     {
-        if (item.data.itemType != ItemType.Armour) return item; // can't equip non-armour here
-        ArmourSlot slot = item.data.armourSlot;
-        if (slot == ArmourSlot.None) return item;
+        if (!item.data.IsArmour()) return item;
+        if (!_equipped.ContainsKey(item.data.itemType)) return item;
 
-        InventoryItem previous = equipped[slot];
-        equipped[slot] = item;
-        return previous; // caller must put this back in the grid
+        InventoryItem displaced = _equipped[item.data.itemType];
+        _equipped[item.data.itemType] = item;
+        return displaced;
     }
 
-    public InventoryItem Unequip(ArmourSlot slot)
+    public InventoryItem Unequip(ItemType type)
     {
-        if (!equipped.ContainsKey(slot)) return null;
-        InventoryItem item = equipped[slot];
-        equipped[slot] = null;
+        if (!_equipped.ContainsKey(type)) return null;
+        InventoryItem item = _equipped[type];
+        _equipped[type] = null;
         return item;
     }
 
-    public InventoryItem GetEquipped(ArmourSlot slot)
+    public InventoryItem GetEquipped(ItemType type)
     {
-        if (!equipped.ContainsKey(slot)) return null;
-        return equipped[slot];
+        if (!_equipped.ContainsKey(type)) return null;
+        return _equipped[type];
     }
 
-    public bool IsSlotEmpty(ArmourSlot slot) => equipped.ContainsKey(slot) && equipped[slot] == null;
+    public bool IsSlotEmpty(ItemType type) => _equipped.ContainsKey(type) && _equipped[type] == null;
 }

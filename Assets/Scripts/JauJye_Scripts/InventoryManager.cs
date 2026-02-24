@@ -1,4 +1,3 @@
-using NUnit.Framework.Interfaces;
 using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
@@ -11,8 +10,9 @@ public class InventoryManager : MonoBehaviour
 
     public InventoryGrid Grid { get; private set; }
     public EquipmentSlots Equipment { get; private set; }
+    public QuickSlots Quick { get; private set; }
 
-    [Header("Test Items - drag ItemData here to auto-add on start")]
+    [Header("Starting Items")]
     [SerializeField] private ItemData[] startingItems;
 
     private void Awake()
@@ -22,15 +22,16 @@ public class InventoryManager : MonoBehaviour
 
         Grid = new InventoryGrid(gridWidth, gridHeight);
         Equipment = new EquipmentSlots();
+        Quick = new QuickSlots();
     }
 
     private void Start()
     {
-        foreach (var itemData in startingItems)
-            AddItem(itemData);
+        foreach (var data in startingItems)
+            AddItem(data);
     }
 
-    // Add item to first available grid slot
+    // ?? Add to grid ???????????????????????????????????????????????????
     public bool AddItem(ItemData data)
     {
         var item = new InventoryItem(data);
@@ -44,29 +45,79 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
-    // Equip from grid to armour slot
-    public void EquipFromGrid(InventoryItem item)
+    // ?? Right-click quick equip ???????????????????????????????????????
+    public void QuickEquip(InventoryItem item)
+    {
+        Grid.Remove(item);
+
+        switch (item.data.itemType)
+        {
+            case ItemType.Weapon:
+                QuickEquipWeapon(item);
+                break;
+
+            case ItemType.Potion:
+                QuickEquipPotion(item);
+                break;
+
+            case ItemType.Helmet:
+            case ItemType.Chestplate:
+            case ItemType.Pants:
+            case ItemType.Boots:
+            case ItemType.Gauntlets:
+                QuickEquipArmour(item);
+                break;
+
+            case ItemType.Quest:
+                // Quest items cannot be equipped - return to grid
+                ReturnToGrid(item);
+                break;
+        }
+
+        InventoryUI.Instance?.RefreshAll();
+        HotbarUI.Instance?.Refresh();
+    }
+
+    private void QuickEquipWeapon(InventoryItem item)
+    {
+        InventoryItem displaced = Quick.EquipWeaponToActive(item);
+        if (displaced != null) ReturnToGrid(displaced);
+    }
+
+    private void QuickEquipPotion(InventoryItem item)
+    {
+        InventoryItem displaced = Quick.EquipPotion(item);
+        if (displaced != null) ReturnToGrid(displaced);
+    }
+
+    private void QuickEquipArmour(InventoryItem item)
+    {
+        InventoryItem displaced = Equipment.Equip(item);
+        if (displaced != null) ReturnToGrid(displaced);
+    }
+
+    // ?? Manual drag equip ?????????????????????????????????????????????
+    public void EquipArmourFromGrid(InventoryItem item)
     {
         Grid.Remove(item);
         InventoryItem displaced = Equipment.Equip(item);
-        if (displaced != null)
-        {
-            // Put displaced item back in grid
-            if (!Grid.FindFreeSlot(displaced, out int x, out int y) || !Grid.TryPlace(displaced, x, y))
-                Debug.LogWarning($"No room to return {displaced.data.itemName} to grid!");
-        }
+        if (displaced != null) ReturnToGrid(displaced);
         InventoryUI.Instance?.RefreshAll();
     }
 
-    // Unequip from armour slot back to grid
-    public void UnequipToGrid(ArmourSlot slot)
+    public void UnequipArmourToGrid(ItemType type)
     {
-        InventoryItem item = Equipment.Unequip(slot);
-        if (item == null) return;
-
-        if (!Grid.FindFreeSlot(item, out int x, out int y) || !Grid.TryPlace(item, x, y))
-            Debug.LogWarning($"No room to unequip {item.data.itemName}!");
-
+        InventoryItem item = Equipment.Unequip(type);
+        if (item != null) ReturnToGrid(item);
         InventoryUI.Instance?.RefreshAll();
+    }
+
+    // ?? Helpers ???????????????????????????????????????????????????????
+    public void ReturnToGrid(InventoryItem item)
+    {
+        if (Grid.FindFreeSlot(item, out int x, out int y))
+            Grid.TryPlace(item, x, y);
+        else
+            Debug.LogWarning($"No room to return {item.data.itemName} to grid!");
     }
 }

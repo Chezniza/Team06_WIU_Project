@@ -12,12 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df78de5d92cd92446affcd577564e097, type: 3}
   m_Name: TestTorso
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: New Item
-  description: 
-  icon: {fileID: 0}
-  itemType: 1
+  itemName: Shirt
+  description: Test test test
+  icon: {fileID: -4770960272869957185, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
+  itemType: 2
   rarity: 2
-  armourSlot: 2
   shape: 010101010101
   shapeWidth: 2
   shapeHeight: 3

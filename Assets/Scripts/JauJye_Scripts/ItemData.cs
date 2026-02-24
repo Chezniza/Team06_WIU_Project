@@ -1,7 +1,6 @@
 using UnityEngine;
 
-public enum ItemType { Weapon, Armour, Consumable, Quest, Misc }
-public enum ArmourSlot { None, Head, Torso, Pants, Shoes, Gauntlets }
+public enum ItemType { Weapon, Helmet, Chestplate, Pants, Boots, Gauntlets, Potion, Quest }
 public enum ItemRarity { Common, Uncommon, Rare, Epic, Legendary }
 
 [CreateAssetMenu(fileName = "NewItem", menuName = "Inventory/Item")]
@@ -14,23 +13,28 @@ public class ItemData : ScriptableObject
     public ItemType itemType;
     public ItemRarity rarity;
 
-    [Header("Armour")]
-    public ArmourSlot armourSlot = ArmourSlot.None; // only used if itemType == Armour
-
     [Header("Grid Shape")]
-    [Tooltip("Define the shape of this item on the inventory grid. Each row is a row of cells.")]
-    public bool[] shape = { true }; // flat array, use shapeWidth x shapeHeight
+    [Tooltip("Flat array read left to right, top to bottom. Size must equal shapeWidth x shapeHeight.")]
+    public bool[] shape = { true };
     public int shapeWidth = 1;
     public int shapeHeight = 1;
 
     [Header("Stats")]
-    public int statValue = 0;       // damage for weapons, defense for armour, etc.
+    public int statValue = 0;  // damage for weapons, defense for armour
     public int weight = 1;
 
-    [Header("Consumable")]
-    public int healAmount = 0;      // only used if Consumable
+    [Header("Potion")]
+    public int healAmount = 0; // only used if ItemType == Potion
 
-    // Returns shape as 2D bool[row, col]
+    public bool IsArmour()
+    {
+        return itemType == ItemType.Helmet ||
+               itemType == ItemType.Chestplate ||
+               itemType == ItemType.Pants ||
+               itemType == ItemType.Boots ||
+               itemType == ItemType.Gauntlets;
+    }
+
     public bool[,] GetShape()
     {
         bool[,] result = new bool[shapeHeight, shapeWidth];
@@ -43,7 +47,6 @@ public class ItemData : ScriptableObject
         return result;
     }
 
-    // Returns shape rotated 90 degrees clockwise
     public bool[,] GetRotatedShape(int rotations)
     {
         bool[,] current = GetShape();
@@ -64,7 +67,5 @@ public class ItemData : ScriptableObject
     }
 
     public static (int width, int height) GetShapeDimensions(bool[,] shape)
-    {
-        return (shape.GetLength(1), shape.GetLength(0));
-    }
+        => (shape.GetLength(1), shape.GetLength(0));
 }
