@@ -4,6 +4,7 @@ public class WeaponController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private WeaponVisual weaponVisual;
+    [SerializeField] private GameObject crosshair;
     private HitDetector hitDetector;
 
     [Header("Weapons")]
@@ -34,6 +35,13 @@ public class WeaponController : MonoBehaviour
     public void EquipWeapon(WeaponData data)
     {
         currentWeapon = data;
+
+        // Enable / disable crosshair
+        if (this.GetComponent<PlayerController>())
+        {
+            bool v = currentWeapon.isRanged ? true : false;
+            crosshair.SetActive(v);
+        }
 
         equippedWeapon = weaponVisual.EquipWeapon(data.modelPrefab);
 

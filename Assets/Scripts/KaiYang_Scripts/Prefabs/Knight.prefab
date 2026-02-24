@@ -2984,11 +2984,11 @@ GameObject:
   - component: {fileID: 4724299305521355094}
   - component: {fileID: 6514633786582336684}
   - component: {fileID: 6490923059445092084}
-  - component: {fileID: 1090586710248788435}
-  - component: {fileID: 867001224748546647}
-  - component: {fileID: 3429607933894675607}
-  - component: {fileID: 8631965468281950199}
-  - component: {fileID: 1605255226376599220}
+  - component: {fileID: 5861651805523042903}
+  - component: {fileID: 6695688870398023282}
+  - component: {fileID: 8212873805530595716}
+  - component: {fileID: 7045529519451363912}
+  - component: {fileID: 6612159043873537603}
   m_Layer: 8
   m_Name: Knight
   m_TagString: Player
@@ -3044,6 +3044,8 @@ Transform:
   - {fileID: 3133636884194596161}
   - {fileID: 8096545704616041538}
   - {fileID: 629618095751379998}
+  - {fileID: 4068753598269188476}
+  - {fileID: 7735819283904377232}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!95 &8693477035451217624
@@ -3081,6 +3083,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   _playerInput: {fileID: 2843521004320603187}
+  staminaSystem: {fileID: 0}
+  exhaustedSpeed: 2
+  walkSpeed: 4
+  sprintSpeed: 7
   gravity: -9.81
   jumpHeight: 2
 --- !u!114 &2843521004320603187
@@ -3330,7 +3336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3943d35efe846ad409da1db2c86cdaf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackHandler
---- !u!114 &1090586710248788435
+--- !u!114 &5861651805523042903
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3343,7 +3349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponVisual
   weaponSocket: {fileID: 1364193923516479436}
---- !u!114 &867001224748546647
+--- !u!114 &6695688870398023282
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3355,7 +3361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aa659db426571442baa5d1b5d89e53e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboController
---- !u!114 &3429607933894675607
+--- !u!114 &8212873805530595716
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3432,7 +3438,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &8631965468281950199
+--- !u!114 &7045529519451363912
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3444,12 +3450,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd3bf9392ea9ca747a1a386304ffc320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponController
-  weaponVisual: {fileID: 1090586710248788435}
+  weaponVisual: {fileID: 5861651805523042903}
   weapons:
   - {fileID: 11400000, guid: 4ed750c736a515847baa841c5c36d238, type: 2}
   - {fileID: 11400000, guid: 05b40e2952ff7574aa98d6454a5b5d77, type: 2}
   - {fileID: 11400000, guid: 14bb8d776ac1a99449ce448aa8ec4cfa, type: 2}
---- !u!114 &1605255226376599220
+--- !u!114 &6612159043873537603
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4123,6 +4129,37 @@ SkinnedMeshRenderer:
     m_Center: {x: -1.1641532e-10, y: -0.000044917455, z: 0.015550183}
     m_Extent: {x: 0.001009208, y: 0.0010622257, z: 0.0010762438}
   m_DirtyAABB: 0
+--- !u!1 &3283133570335023825
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7735819283904377232}
+  m_Layer: 8
+  m_Name: KnightTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7735819283904377232
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3283133570335023825}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.317, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3334145424694455458}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3350992999683779268
 GameObject:
   m_ObjectHideFlags: 0
@@ -8877,6 +8914,61 @@ MonoBehaviour:
       x: 1
       y: 1
       z: 1
+--- !u!1 &8366383086055454407
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4068753598269188476}
+  - component: {fileID: 662156045082767685}
+  m_Layer: 8
+  m_Name: HitBox
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &4068753598269188476
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8366383086055454407}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3334145424694455458}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &662156045082767685
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8366383086055454407}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.99
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8491481779002348408
 GameObject:
   m_ObjectHideFlags: 0

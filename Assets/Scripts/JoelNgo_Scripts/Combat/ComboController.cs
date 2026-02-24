@@ -55,6 +55,16 @@ public class ComboController : MonoBehaviour
 
     public void RequestHeavyAttack()
     {
+        // Ranged
+        var weaponData = weapon.CurrentWeapon;
+
+        if (weaponData.isRanged)
+        {
+            // TryFireHeavyRanged();
+            return;
+        }
+
+        // Melee
         heavyQueued = true;
 
         if (!isAttack)
