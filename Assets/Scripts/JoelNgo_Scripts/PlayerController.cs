@@ -2,7 +2,6 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using static Unity.Collections.AllocatorManager;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,11 +11,28 @@ public class PlayerController : MonoBehaviour
     private ComboController _comboController;
     private BlockController _blockController;
 
+    /*
+    * Stamina system reference
+    * M 20 Feb
+    */
+    [SerializeField] private StaminaSystem staminaSystem;
+    [SerializeField] private float exhaustedSpeed = 2f;
+
+    /*
+     * Walkspeed calculations
+     * M 20 Feb
+     */
+    [SerializeField] private float walkSpeed = 4f;
+    [SerializeField] private float sprintSpeed = 7f;
+    private float currentSpeed;
+
     // Walk
     Vector3 moveDirection;
     Vector2 moveInput;
+
     // Sprint
     bool isSprinting;
+
     // Jump
     bool isJumping;
     private Vector3 jumpVelocity;
@@ -39,6 +55,7 @@ public class PlayerController : MonoBehaviour
         isSprinting = false;
         isJumping = false;
     }
+
     void Update()
     {
         Walk();
@@ -68,7 +85,45 @@ public class PlayerController : MonoBehaviour
             moveDirection.z = 0;
         }
 
-        _characterController.Move(moveDirection * Time.deltaTime);
+        /*
+         * Walkspeed calculations
+         * M 20 Feb
+         */
+
+        // Check if the character is sprinting - M 20 Feb
+        if (!staminaSystem.IsInRecovery() && isSprinting && moveInput.sqrMagnitude > 0.1f)
+        {
+            if (!staminaSystem.UseStamina(25f * Time.deltaTime))
+            {
+                isSprinting = false;
+            }
+        }
+        else if (staminaSystem.IsInRecovery())
+        {
+            isSprinting = false;
+        }
+
+
+        /*
+         * Recovery mode
+         * M 23 Feb
+         */
+        if (staminaSystem.IsInRecovery())
+        {
+            currentSpeed = exhaustedSpeed;
+        }
+        else
+        {
+            currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        }
+
+
+        Vector3 finalMove = moveDirection * currentSpeed;
+        finalMove.y = jumpVelocity.y;
+
+        _characterController.Move(finalMove * Time.deltaTime);
+
+
 
         // Animator states AFTER Move
         bool grounded = _characterController.isGrounded;
@@ -113,7 +168,17 @@ public class PlayerController : MonoBehaviour
     }
 
     public void UpdateMoveInput(Vector2 v) { moveInput = v; }
-    public void UpdateSprintInput(bool v) { isSprinting = v; }
+    public void UpdateSprintInput(bool v)
+    {
+        // If exhausted, completely ignore sprint input
+        if (staminaSystem.isExhausted)
+        {
+            isSprinting = false;
+            return;
+        }
+
+        isSprinting = v;
+    }
     public void UpdateJumpInput(bool v) { isJumping = v; }
 
     public void AddVerticalVelocity(float v) { jumpVelocity.y = v; }
