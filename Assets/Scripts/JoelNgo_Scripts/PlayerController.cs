@@ -5,13 +5,9 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private PlayerInput _playerInput;
-<<<<<<< HEAD
     [SerializeField] private Animator _animator;
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private AttackHandler _attackHandler;
-=======
-    private Animator _animator;
-    private CharacterController _characterController;
     private ComboController _comboController;
     private BlockController _blockController;
 
@@ -30,7 +26,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintSpeed = 7f;
     private float currentSpeed;
 
->>>>>>> origin/Master
     // Walk
     Vector3 moveDirection;
     Vector2 moveInput;
@@ -44,9 +39,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public float gravity = -9.81f;
     [SerializeField] private float jumpHeight = 2f;
     private bool _jumpLanded = true;
-<<<<<<< HEAD
-=======
-
     private void Awake()
     {
         _animator = GetComponent<Animator>();
@@ -55,7 +47,6 @@ public class PlayerController : MonoBehaviour
         _blockController = GetComponent<BlockController>();
     }
 
->>>>>>> origin/Master
     // Start is called before the first frame update
     void Start()
     {
@@ -87,14 +78,7 @@ public class PlayerController : MonoBehaviour
             moveDirection.x = 0;
             moveDirection.z = 0;
         }
-<<<<<<< HEAD
         _characterController.Move(moveDirection * Time.deltaTime);
-=======
-
-        /*
-         * Walkspeed calculations
-         * M 20 Feb
-         */
 
         // Check if the character is sprinting - M 20 Feb
         if (!staminaSystem.IsInRecovery() && isSprinting && moveInput.sqrMagnitude > 0.1f)
@@ -129,9 +113,6 @@ public class PlayerController : MonoBehaviour
 
         _characterController.Move(finalMove * Time.deltaTime);
 
-
-
->>>>>>> origin/Master
         // Animator states AFTER Move
         bool grounded = _characterController.isGrounded;
         _animator.SetBool("IsJumping", !grounded && jumpVelocity.y > 0);
