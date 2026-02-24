@@ -3,7 +3,10 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Projectile
+  - Boss
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -11,11 +14,11 @@ TagManager:
   - Floor
   - Water
   - UI
-  - Target
+  - Enemy
   - Wall
   - Player
-  - 
-  - 
+  - Boss
+  - Projectile
   - 
   - 
   - 

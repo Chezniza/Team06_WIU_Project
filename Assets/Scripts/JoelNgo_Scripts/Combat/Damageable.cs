@@ -20,6 +20,8 @@ public class Damageable : MonoBehaviour
         // Set all renderers to damage color instantly
         for (int i = 0; i < renderers.Length; i++)
         {
+            if (renderers[i] == null) continue;
+
             renderers[i].material.color = damageColor;
         }
 
@@ -28,6 +30,8 @@ public class Damageable : MonoBehaviour
         {
             for (int i = 0; i < renderers.Length; i++)
             {
+                if (renderers[i] == null) continue;
+
                 renderers[i].material.color = Color.Lerp(damageColor,
                     originalColors[i], elapsedTime / damageEffectDuration);
             }
@@ -38,6 +42,8 @@ public class Damageable : MonoBehaviour
         // Ensure final colors are reset
         for (int i = 0; i < renderers.Length; i++)
         {
+            if (renderers[i] == null) continue;
+
             renderers[i].material.color = originalColors[i];
         }
     }
@@ -56,11 +62,16 @@ public class Damageable : MonoBehaviour
             originalColors[i] = renderers[i].material.color;
         }
     }
+
     public void TakeDamage(int amount)
     {
+        // Stop other damage effects
+        StopAllCoroutines();
+
         if (health <= 0) return;
 
         health -= amount;
+        health = Mathf.Max(health, 0);
         _healthbar.updateHealthBar(stats.Health, health);
 
         StartCoroutine(DamageEffect());
@@ -70,11 +81,12 @@ public class Damageable : MonoBehaviour
             _animator.SetTrigger("Die");
         }
     }
-
+  
     public void OnDeathAnimationFinished()
     {
         gameObject.SetActive(false);
     }
 
     public int GetHealth() { return health; }
+    public int GetMaxHealth() { return stats.Health; }
 }
