@@ -4,7 +4,9 @@ using TMPro;
 
 public class Dialogue : MonoBehaviour
 {
-    public TextMeshProUGUI textComponent;
+    public GameObject dialogueBox;
+    public TextMeshProUGUI nameText;
+    public TextMeshProUGUI dialogueText;
     public string NPCName;
     public string[] lines;
     public float textSpeed = 0.05f;
@@ -16,11 +18,13 @@ public class Dialogue : MonoBehaviour
     void OnEnable()
     {
         // Do nothing prevent Unity from auto-typing a line
-        textComponent.text = string.Empty;
+        nameText.text = string.Empty;
+        dialogueText.text = string.Empty;
     }
     void Start()
     {
-        textComponent.text = string.Empty;
+        nameText.text = string.Empty;
+        dialogueText.text = string.Empty;
     }
 
     public void setStartIndex(int num)
@@ -36,7 +40,8 @@ public class Dialogue : MonoBehaviour
     public void PlayDialogue()
     {
         StopAllCoroutines();
-        gameObject.SetActive(true);
+        nameText.text = NPCName;
+        dialogueBox.SetActive(true);
 
         currentIndex = startIndex;
         StartCoroutine(TypeLine());
@@ -45,14 +50,14 @@ public class Dialogue : MonoBehaviour
     IEnumerator TypeLine()
     {
         string line = lines[currentIndex];
-        textComponent.text = string.Empty;
+        dialogueText.text = string.Empty;
 
         // Wait one frame to ensure UI updates (a missing character bug occurs without this)
         yield return null;
 
         for (int i = 0; i < line.Length; i++)
         {
-            textComponent.text += line[i];
+            dialogueText.text += line[i];
             yield return new WaitForSeconds(textSpeed);
         }
     }
@@ -62,12 +67,12 @@ public class Dialogue : MonoBehaviour
         if (currentIndex < endIndex)
         {
             currentIndex++;
-            textComponent.text = string.Empty;
+            dialogueText.text = string.Empty;
             StartCoroutine(TypeLine());
         }
         else
         {
-            gameObject.SetActive(false);
+            dialogueBox.SetActive(false);
 
             Debug.Log("dialogue end");
         }
@@ -76,7 +81,7 @@ public class Dialogue : MonoBehaviour
     public void Click()
     {
         // If line finished, go to next
-        if (textComponent.text == lines[currentIndex])
+        if (dialogueText.text == lines[currentIndex])
         {
             NextLine();
         }
@@ -84,7 +89,7 @@ public class Dialogue : MonoBehaviour
         else
         {
             StopAllCoroutines();
-            textComponent.text = lines[currentIndex];
+            dialogueText.text = lines[currentIndex];
         }
     }
 }
