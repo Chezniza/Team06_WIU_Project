@@ -436,7 +436,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -714, y: -458}
+  m_AnchoredPosition: {x: -318, y: -229}
   m_SizeDelta: {x: 318.3834, y: 43.2547}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &72809422
@@ -7173,8 +7173,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 72809421}
   - {fileID: 1117784536}
+  - {fileID: 72809421}
   - {fileID: 661034365}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10811,8 +10811,8 @@ MonoBehaviour:
   _playerController: {fileID: 934174956}
   damageable: {fileID: 934174959}
   _attackHandler: {fileID: 934174953}
-  _weaponController: {fileID: 0}
-  _blockController: {fileID: 0}
+  _weaponController: {fileID: 1454366949}
+  _blockController: {fileID: 1454366948}
   _virtualCamera: {fileID: 164084046}
   _freeLookCamera: {fileID: 163825082}
   _FPCamera: {fileID: 1531881675}
