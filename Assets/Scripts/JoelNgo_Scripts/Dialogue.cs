@@ -5,6 +5,7 @@ using TMPro;
 public class Dialogue : MonoBehaviour
 {
     public TextMeshProUGUI textComponent;
+    public string NPCName;
     public string[] lines;
     public float textSpeed = 0.05f;
 
@@ -14,7 +15,7 @@ public class Dialogue : MonoBehaviour
 
     void OnEnable()
     {
-        // Do nothing � prevent Unity from auto-typing a line
+        // Do nothing prevent Unity from auto-typing a line
         textComponent.text = string.Empty;
     }
     void Start()
