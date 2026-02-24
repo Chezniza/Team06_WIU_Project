@@ -40,6 +40,13 @@ public class BossAI : EnemyBase
     [SerializeField] private GameObject spellProjectilePrefab;  // sphere that drops on impact
     [SerializeField] private float      spellDropHeight = 8f;   // how high above target it spawns
 
+    [Header("Minion Summon")]
+    [SerializeField] private GameObject[] minionPrefabs;          // drag minion prefabs here
+    [SerializeField] private int          minionCount        = 2;
+    [SerializeField] private float        minionSpawnRadius  = 3f;
+    [SerializeField] private float        summonCooldown     = 40f;
+    [SerializeField] private float        summonShootInterval = 10f; // shoot every X seconds while waiting
+
     [Header("Pillar Phase (Phase 2 only)")]
     [SerializeField] private GameObject pillarPrefab;
     [SerializeField] private int        pillarCount          = 4;
@@ -58,6 +65,7 @@ public class BossAI : EnemyBase
     private float rangedTimer      = 0f;
     private float spellTimer       = 0f;
     private float pillarPhaseTimer = 30f;
+    private float summonTimer         = 0f;
 
     private bool               inPillarPhase = false;
     private List<PillarHealth> activePillars = new List<PillarHealth>();
@@ -68,6 +76,7 @@ public class BossAI : EnemyBase
     private RangedAttack       rangedAttack;
     private PillarRangedAttack pillarRangedAttack;
     private SpellAttack        spellAttack;
+    private SummonMinionAttack summonAttack;
 
     private BossContext ctx;
 
@@ -119,6 +128,19 @@ public class BossAI : EnemyBase
             aimPoint:              AimPoint
         );
 
+        summonAttack = new SummonMinionAttack(
+            minionPrefabs:         minionPrefabs,
+            minionCount:           minionCount,
+            spawnRadius:           minionSpawnRadius,
+            shootInterval:         summonShootInterval,
+            rangedCooldown:        rangedCooldown,
+            rangedDamage:          rangedDamage,
+            projectilePrefab:      projectilePrefab,
+            spawnPoint:            projectileSpawnPoint,
+            burstProjectilePrefab: burstProjectilePrefab,
+            aimPoint:              AimPoint
+        );
+
         spellAttack = new SpellAttack(
             damage:        spellDamage,
             radius:        aoeRadius,
@@ -133,6 +155,7 @@ public class BossAI : EnemyBase
         rangedAttack.SetContext(ctx);
         pillarRangedAttack.SetContext(ctx);
         spellAttack.SetContext(ctx);
+        summonAttack.SetContext(ctx);
     }
 
     // ─────────────────────────────────────────────
@@ -149,6 +172,7 @@ public class BossAI : EnemyBase
 
         // Tick cooldowns
         rangedTimer = Mathf.Max(0f, rangedTimer - Time.deltaTime);
+        summonTimer = Mathf.Max(0f, summonTimer - Time.deltaTime);
         spellTimer  = Mathf.Max(0f, spellTimer  - Time.deltaTime);
 
         // Pillar timer ticks even while blocking so boss can't get permanently stuck
@@ -219,6 +243,14 @@ public class BossAI : EnemyBase
                 return;
             }
         }
+        // Summon minions if off cooldown (works in both phases)
+        if (summonTimer <= 0f && minionPrefabs != null && minionPrefabs.Length > 0)
+        {
+            summonTimer = summonCooldown;
+            RunAttack(summonAttack);
+            return;
+        }
+
         Chase();
     }
 

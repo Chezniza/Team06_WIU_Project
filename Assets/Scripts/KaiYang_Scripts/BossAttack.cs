@@ -291,3 +291,133 @@ public class SpellAttack : BossAttackBase
         ctx.RangedCooldownRemaining = ctx.RangedCooldownRemaining * rangedSuppressionMult;
     }
 }
+
+// ── Summon minions — boss roots and shoots until all minions dead ─
+public class SummonMinionAttack : BossAttackBase
+{
+    private GameObject[] minionPrefabs;    // pool of prefabs to pick from
+    private int          minionCount;
+    private float        spawnRadius;
+    private float        shootInterval;    // how often boss shoots while waiting
+    private float        rangedCooldown;
+    private GameObject   projectilePrefab;
+    private GameObject   burstProjectilePrefab;
+    private Transform    spawnPoint;
+    private Transform    aimPoint;
+    private int          rangedDamage;
+
+    public SummonMinionAttack(
+        GameObject[] minionPrefabs, int minionCount, float spawnRadius,
+        float shootInterval, float rangedCooldown, int rangedDamage,
+        GameObject projectilePrefab, Transform spawnPoint,
+        GameObject burstProjectilePrefab = null, Transform aimPoint = null)
+    {
+        this.minionPrefabs          = minionPrefabs;
+        this.minionCount            = minionCount;
+        this.spawnRadius            = spawnRadius;
+        this.shootInterval          = shootInterval;
+        this.rangedCooldown         = rangedCooldown;
+        this.rangedDamage           = rangedDamage;
+        this.projectilePrefab       = projectilePrefab;
+        this.spawnPoint             = spawnPoint;
+        this.burstProjectilePrefab  = burstProjectilePrefab;
+        this.aimPoint               = aimPoint;
+    }
+
+    public override IEnumerator Execute()
+    {
+        // Summon animation windup
+        ctx.Animator.SetBool("IsWalking", false);
+        ctx.Animator.SetTrigger("SpellCast");
+        yield return new WaitForSeconds(1f);
+
+        // Spawn minions in a circle around the boss
+        var activeMinions = new System.Collections.Generic.List<GameObject>();
+        float angleStep = 360f / minionCount;
+
+        for (int i = 0; i < minionCount; i++)
+        {
+            if (minionPrefabs == null || minionPrefabs.Length == 0) break;
+
+            float   angle    = i * angleStep;
+            Vector3 offset   = Quaternion.Euler(0f, angle, 0f) * Vector3.forward * spawnRadius;
+            Vector3 spawnPos = ctx.Boss.transform.position + offset;
+
+            // Snap to ground
+            if (Physics.Raycast(spawnPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 15f))
+                spawnPos = hit.point;
+
+            // Pick a random prefab from the pool
+            GameObject prefab = minionPrefabs[Random.Range(0, minionPrefabs.Length)];
+            GameObject minion = Object.Instantiate(prefab, spawnPos, Quaternion.identity);
+
+            // Reset animator so the Die trigger from a previous run doesn't carry over
+            Animator minionAnim = minion.GetComponent<Animator>();
+            if (minionAnim != null)
+            {
+                minionAnim.Rebind();
+                minionAnim.Update(0f);
+            }
+
+            // Ensure it's active (prefab may have been left inactive)
+            minion.SetActive(true);
+
+            activeMinions.Add(minion);
+        }
+
+        Debug.Log($"[BossAI] Summoned {activeMinions.Count} minions.");
+
+        // Root the boss — shoot every shootInterval until all minions dead
+        float shootTimer = 0f;
+
+        while (true)
+        {
+            // Check if all minions are gone
+            bool allDead = true;
+            foreach (var m in activeMinions)
+            {
+                if (m != null && m.activeSelf) { allDead = false; break; }
+            }
+            if (allDead) break;
+
+            // Rotate toward player while waiting
+            Vector3 dir = (ctx.Player.position - ctx.Boss.transform.position);
+            dir.y = 0;
+            if (dir.sqrMagnitude > 0.001f)
+                ctx.Boss.transform.rotation = Quaternion.RotateTowards(
+                    ctx.Boss.transform.rotation,
+                    Quaternion.LookRotation(dir),
+                    720f * Time.deltaTime);
+
+            // Shoot on interval
+            shootTimer -= Time.deltaTime;
+            if (shootTimer <= 0f && projectilePrefab != null)
+            {
+                Fire(burstProjectilePrefab ?? projectilePrefab,  0f);
+                Fire(burstProjectilePrefab ?? projectilePrefab,  15f);
+                Fire(burstProjectilePrefab ?? projectilePrefab, -15f);
+                shootTimer = shootInterval;
+            }
+
+            yield return null;
+        }
+
+        Debug.Log("[BossAI] All minions dead — boss resuming.");
+    }
+
+    private void Fire(GameObject prefab, float angleOffset)
+    {
+        if (prefab == null || spawnPoint == null) return;
+
+        Vector3 aimPos  = aimPoint != null ? aimPoint.position : ctx.Player.position + Vector3.up;
+        Vector3 baseDir = (aimPos - spawnPoint.position).normalized;
+        Vector3 dir     = Quaternion.Euler(0f, angleOffset, 0f) * baseDir;
+
+        GameObject  go   = Object.Instantiate(prefab, spawnPoint.position, Quaternion.LookRotation(dir));
+        Projectiles proj = go.GetComponent<Projectiles>();
+        if (proj == null) return;
+
+        proj.Init(rangedDamage, dir, aimPoint);
+        proj.EnableHoming();
+    }
+}
