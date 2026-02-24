@@ -11959,7 +11959,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Dialogue
   textComponent: {fileID: 0}
-  lines: []
+  NPCName: 
+  lines:
+  - 
   textSpeed: 0.05
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
