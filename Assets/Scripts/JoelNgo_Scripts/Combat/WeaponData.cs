@@ -19,10 +19,5 @@ public class WeaponData : ScriptableObject
     [Header("Ranged")]
     public bool isRanged;
     public GameObject projectilePrefab;
-
-    [Header("Audio")]
-    public AudioClip lightAttackSFX;
-    public AudioClip heavyAttackSFX;
-    public AudioClip hitSFX;
-    public AudioClip blockHitSFX;
+    public float fireCooldown = 0.5f;
 }

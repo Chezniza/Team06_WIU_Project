@@ -10,9 +10,13 @@ public class ComboController : MonoBehaviour
     private bool isHeavyAttacking;
     private int attackStep;
 
+    // Combo
     private bool lightQueued;
     private bool heavyQueued;
     private Coroutine comboCoroutine;
+
+    // Ranged
+    private float nextFireTime = 0f;
 
     public bool IsAttacking => isAttack;
     public bool IsHeavyAttacking => isHeavyAttacking;
@@ -23,8 +27,26 @@ public class ComboController : MonoBehaviour
         weapon = GetComponent<WeaponController>();
     }
 
+    private void Update()
+    {
+        var weaponData = weapon.CurrentWeapon;
+
+        if (nextFireTime > 0f)
+            nextFireTime -= Time.deltaTime;
+    }
+
     public void RequestLightAttack()
     {
+        // Ranged
+        var weaponData = weapon.CurrentWeapon;
+
+        if (weaponData.isRanged)
+        {
+            TryFireRanged();
+            return;
+        }
+
+        // Melee
         lightQueued = true;
 
         if (!isAttack)
@@ -52,13 +74,6 @@ public class ComboController : MonoBehaviour
     private IEnumerator PerformCombo()
     {
         var weaponData = weapon.CurrentWeapon;
-
-        if (weaponData.isRanged)
-        {
-            weapon.FireProjectile(Camera.main);
-            ResetCombo();
-            yield break;
-        }
 
         while (lightQueued || heavyQueued)
         {
@@ -120,5 +135,17 @@ public class ComboController : MonoBehaviour
         animator.SetInteger("AttackStep", 0);
         animator.SetBool("IsAttack", false);
         animator.SetBool("IsHeavyAttack", false);
+    }
+
+    private void TryFireRanged()
+    {
+        var weaponData = weapon.CurrentWeapon;
+
+        if (nextFireTime > 0f)
+            return;
+
+        nextFireTime = weaponData.fireCooldown;
+
+        weapon.FireProjectile(Camera.main);
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,13 +14,13 @@ public class HitDetector : MonoBehaviour
     [Header("Events")]
     public UnityEvent attackHitEvent;
     public UnityEvent blockHitEvent;
+    public UnityEvent parryEvent;
     public UnityEvent staggerEvent;
-
-    [Header("Effects")]
-    public ParticleSystem blockFX;
 
     private WeaponController weapon;
     private ComboController combo;
+
+    private HashSet<GameObject> hitTargets = new HashSet<GameObject>();
 
     private Vector3 externalVelocity;
 
@@ -65,6 +66,11 @@ public class HitDetector : MonoBehaviour
     {
         if (target == gameObject) return;
 
+        if (hitTargets.Contains(target))
+            return;
+
+        hitTargets.Add(target);
+
         // Block / parry check
         if (target.TryGetComponent<BlockController>(out var targetBlock))
         {
@@ -76,9 +82,10 @@ public class HitDetector : MonoBehaviour
                 // Parry
                 if (targetBlockTime < targetBlock.ParryTime)
                 {
-                    Stagger(this.gameObject);
+                    parryEvent.Invoke();
 
-                    Debug.Log("Parried!");
+                    Stagger(this.gameObject);
+                    CombatFX.particleAtHit(target, collider, CombatFX.Instance.parryFX);
 
                     return;
                 }
@@ -86,18 +93,9 @@ public class HitDetector : MonoBehaviour
                 // Light block
                 if (!combo.IsHeavyAttacking)
                 {
-                    blockHitEvent?.Invoke();
+                    blockHitEvent.Invoke();
 
-                    // Block FX
-                    Collider targetCollider = target.GetComponent<Collider>();
-
-                    Vector3 hitPoint = targetCollider != null ? 
-                        targetCollider.ClosestPoint(collider.transform.position) : target.transform.position;
-
-                    Vector3 dir = (transform.position - hitPoint).normalized;
-                    Quaternion rot = Quaternion.LookRotation(dir);
-
-                    Instantiate(blockFX, hitPoint, rot);
+                    CombatFX.particleAtHit(target, collider, CombatFX.Instance.blockFX);
 
                     //impulse?.GenerateImpulse(Camera.main.transform.forward);
                     Vector3 pushDir = (target.transform.position - transform.position).normalized;
@@ -112,8 +110,6 @@ public class HitDetector : MonoBehaviour
                     Stagger(target);
                 }
             }
-
-            collider.enabled = false;
         }
 
         // Damage
@@ -126,9 +122,8 @@ public class HitDetector : MonoBehaviour
 
             damageable.TakeDamage(dmg);
 
-            collider.enabled = false;
-
-            attackHitEvent?.Invoke();
+            CombatFX.particleAtHit(target, collider, CombatFX.Instance.hitFX);
+            attackHitEvent.Invoke();
 
             impulse?.GenerateImpulse(Camera.main.transform.forward);
         }
@@ -137,17 +132,16 @@ public class HitDetector : MonoBehaviour
     // Stagger
     private void Stagger(GameObject target)
     {
+        if (target.TryGetComponent<BlockController>(out var block))
+        {
+            block.StopBlock();
+        }
         if (target.TryGetComponent<Animator>(out var anim))
         {
             anim.SetTrigger("Stagger");
         }
 
-        if (target.TryGetComponent<BlockController>(out var block))
-        {
-            block.StopBlock();
-        }
-
-        staggerEvent?.Invoke();
+        staggerEvent.Invoke();
     }
 
     public void ApplyPush(Vector3 direction, float force)
@@ -168,5 +162,11 @@ public class HitDetector : MonoBehaviour
                 8f * Time.deltaTime
             );
         }
+    }
+
+    // Runs at the start of every attack to clear hit targets
+    public void clearHitTargets()
+    {
+        hitTargets.Clear();
     }
 }

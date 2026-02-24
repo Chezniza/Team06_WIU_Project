@@ -4,6 +4,7 @@ public class WeaponController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private WeaponVisual weaponVisual;
+    private HitDetector hitDetector;
 
     [Header("Weapons")]
     [SerializeField] private WeaponData[] weapons;
@@ -21,6 +22,9 @@ public class WeaponController : MonoBehaviour
 
     private void Start()
     {
+        hitDetector = GetComponent<HitDetector>();
+
+        // Equip first weapon by default
         if (weapons.Length > 0)
         {
             EquipWeapon(weapons[0]);
@@ -52,6 +56,8 @@ public class WeaponController : MonoBehaviour
     public void EnableCollider(int index)
     {
         equippedWeapon?.EnableCollider(index);
+
+        hitDetector.clearHitTargets(); // reset hit targets for this attack
     }
 
     public void DisableColliders()
