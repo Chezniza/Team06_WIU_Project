@@ -11,7 +11,7 @@ using UnityEngine;
 
 public class BossAI : EnemyBase
 {
-    public enum BossPhase { Phase1, Phase2 }
+    public enum BossPhase { Phase1, Phase2, Phase3 }
 
     // ─────────────────────────────────────────────
     // INSPECTOR
@@ -21,6 +21,9 @@ public class BossAI : EnemyBase
     [SerializeField] private float phase2HPThreshold        = 0.5f;
     [SerializeField] private float phase2BlockChance        = 0.4f;
     [SerializeField] private float phase2AttackCooldownMult = 0.7f;
+    [SerializeField] private float phase3HPThreshold = 0.5f;
+    [SerializeField] private float phase3BlockChance = 0.2f;
+    [SerializeField] private float phase3AttackCooldownMult = 0.7f;
 
     [Header("Ranged Attack")]
     [SerializeField] private Transform  AimPoint;
@@ -40,12 +43,6 @@ public class BossAI : EnemyBase
     [SerializeField] private GameObject spellProjectilePrefab;  // sphere that drops on impact
     [SerializeField] private float      spellDropHeight = 8f;   // how high above target it spawns
 
-    [Header("Minion Summon")]
-    [SerializeField] private GameObject[] minionPrefabs;          // drag minion prefabs here
-    [SerializeField] private int          minionCount        = 2;
-    [SerializeField] private float        minionSpawnRadius  = 3f;
-    [SerializeField] private float        summonCooldown     = 40f;
-    [SerializeField] private float        summonShootInterval = 10f; // shoot every X seconds while waiting
 
     [Header("Pillar Phase (Phase 2 only)")]
     [SerializeField] private GameObject pillarPrefab;
@@ -55,12 +52,22 @@ public class BossAI : EnemyBase
     [SerializeField] private float      pillarPhaseInterval  = 30f;
     [SerializeField] private float      pillarRangedCooldown = 1.5f;
 
+
+    [Header("Minion Summon (Phase 3)")]
+    [SerializeField] private GameObject[] minionPrefabs;          // drag minion prefabs here
+    [SerializeField] private int minionCount = 2;
+    [SerializeField] private float minionSpawnRadius = 3f;
+    [SerializeField] private float summonCooldown = 40f;
+    [SerializeField] private float summonShootInterval = 10f; // shoot every X seconds while waiting
+
+
     // ─────────────────────────────────────────────
     // PRIVATE STATE
     // ─────────────────────────────────────────────
 
-    private BossPhase currentPhase        = BossPhase.Phase1;
-    private bool      phaseTransitionDone = false;
+    private BossPhase currentPhase          = BossPhase.Phase1;
+    private bool      phase2TransitionDone = false;
+    private bool      phase3TransitionDone = false;
 
     private float rangedTimer      = 0f;
     private float spellTimer       = 0f;
@@ -129,16 +136,16 @@ public class BossAI : EnemyBase
         );
 
         summonAttack = new SummonMinionAttack(
-            minionPrefabs:         minionPrefabs,
-            minionCount:           minionCount,
-            spawnRadius:           minionSpawnRadius,
-            shootInterval:         summonShootInterval,
-            rangedCooldown:        rangedCooldown,
-            rangedDamage:          rangedDamage,
-            projectilePrefab:      projectilePrefab,
-            spawnPoint:            projectileSpawnPoint,
+            minionPrefabs: minionPrefabs,
+            minionCount: minionCount,
+            spawnRadius: minionSpawnRadius,
+            shootInterval: summonShootInterval,
+            rangedCooldown: rangedCooldown,
+            rangedDamage: rangedDamage,
+            projectilePrefab: projectilePrefab,
+            spawnPoint: projectileSpawnPoint,
             burstProjectilePrefab: burstProjectilePrefab,
-            aimPoint:              AimPoint
+            aimPoint: AimPoint
         );
 
         spellAttack = new SpellAttack(
@@ -164,7 +171,7 @@ public class BossAI : EnemyBase
 
     protected override void Update()
     {
-        if (!phaseTransitionDone)
+        if (!phase2TransitionDone || !phase3TransitionDone)
             CheckPhaseTransition();
 
         // Keep context phase in sync
@@ -226,11 +233,8 @@ public class BossAI : EnemyBase
     {
         if (distance <= rangedRange)
         {
-            if (currentPhase == BossPhase.Phase2 && spellTimer <= 0f)
+            if ((currentPhase == BossPhase.Phase2 || currentPhase == BossPhase.Phase3) && spellTimer <= 0f)
             {
-                // Set timer BEFORE RunAttack — RunAttack starts a coroutine and
-                // returns immediately, so setting after would leave timer at 0
-                // for the next frame, allowing a second spell to fire instantly.
                 spellTimer  = spellCooldown;
                 rangedTimer = rangedCooldown * 0.5f;
                 RunAttack(spellAttack);
@@ -243,8 +247,8 @@ public class BossAI : EnemyBase
                 return;
             }
         }
-        // Summon minions if off cooldown (works in both phases)
-        if (summonTimer <= 0f && minionPrefabs != null && minionPrefabs.Length > 0)
+        // Summon minions if off cooldown 
+        if (currentPhase == BossPhase.Phase3 && summonTimer <= 0f && minionPrefabs != null && minionPrefabs.Length > 0)
         {
             summonTimer = summonCooldown;
             RunAttack(summonAttack);
@@ -270,7 +274,7 @@ public class BossAI : EnemyBase
         if (Random.value < currentBlockChance) { StartAIBlock(); return; }
 
         // Phase 2: combo roll
-        if (currentPhase == BossPhase.Phase2 && Random.value < 0.4f)
+        if ((currentPhase == BossPhase.Phase2 || currentPhase == BossPhase.Phase3) && Random.value < 0.4f)
         {
             RunAttack(heavyComboAttack);
             attackTimer = attackCooldown * phase2AttackCooldownMult;
@@ -338,7 +342,7 @@ public class BossAI : EnemyBase
             Vector3 spawnPos = transform.position + offset + Vector3.up * pillarSpawnHeight;
 
             if (Physics.Raycast(spawnPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 15f))
-                spawnPos = hit.point + Vector3.up * (pillarPrefab.transform.localScale.y * 0.5f);
+                spawnPos = hit.point + Vector3.up * (pillarPrefab.transform.localScale.y * 0.8f);
 
             GameObject   go = Instantiate(pillarPrefab, spawnPos, Quaternion.identity);
             PillarHealth ph = go.GetComponent<PillarHealth>();
@@ -377,9 +381,18 @@ public class BossAI : EnemyBase
     private void CheckPhaseTransition()
     {
         float hpPercent = (float)damageable.GetHealth() / damageable.GetMaxHealth();
-        if (hpPercent <= phase2HPThreshold)
+
+        if (!phase3TransitionDone && hpPercent <= phase3HPThreshold)
         {
-            phaseTransitionDone = true;
+            phase3TransitionDone = true;
+            phase2TransitionDone = true; // ensure phase2 doesn't re-trigger
+            StartCoroutine(DoPhase3Transition());
+            return;
+        }
+
+        if (!phase2TransitionDone && hpPercent <= phase2HPThreshold)
+        {
+            phase2TransitionDone = true;
             StartCoroutine(DoPhaseTransition());
         }
     }
@@ -396,6 +409,21 @@ public class BossAI : EnemyBase
         attackCooldown  *= phase2AttackCooldownMult;
 
         Debug.Log($"[{enemyName}] Entered Phase 2!");
+        isActing = false;
+    }
+
+    private IEnumerator DoPhase3Transition()
+    {
+        isActing = true;
+        animator.SetTrigger("PhaseTransition");
+
+        yield return new WaitForSeconds(3f);
+
+        currentPhase   = BossPhase.Phase3;
+        attackCooldown *= phase3AttackCooldownMult;
+        summonTimer    = 0f;  // trigger summon immediately on phase 3 entry
+
+        Debug.Log($"[{enemyName}] Entered Phase 3!");
         isActing = false;
     }
 

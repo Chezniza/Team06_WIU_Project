@@ -1562,6 +1562,9 @@ MonoBehaviour:
   phase2HPThreshold: 0.9
   phase2BlockChance: 0.4
   phase2AttackCooldownMult: 0.7
+  phase3HPThreshold: 0.5
+  phase3BlockChance: 0.2
+  phase3AttackCooldownMult: 0.7
   AimPoint: {fileID: 920242147}
   rangedRange: 10
   rangedCooldown: 3.5
@@ -1576,18 +1579,18 @@ MonoBehaviour:
   aoeWarningPrefab: {fileID: 3401152098043458202, guid: e8b95922ab7a14245bbe32131a936555, type: 3}
   spellProjectilePrefab: {fileID: 791193111904105397, guid: e155997749b472b44b4f90cd53731c3a, type: 3}
   spellDropHeight: 10
+  pillarPrefab: {fileID: 2925545736976168742, guid: 77b60c8740b42a4418d766a8c9a206e8, type: 3}
+  pillarCount: 4
+  pillarSpawnRadius: 10
+  pillarSpawnHeight: 0
+  pillarPhaseInterval: 14.06
+  pillarRangedCooldown: 1.5
   minionPrefabs:
-  - {fileID: 1323671588}
+  - {fileID: 1972549828917542275, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
   minionCount: 2
   minionSpawnRadius: 3
   summonCooldown: 20
   summonShootInterval: 10
-  pillarPrefab: {fileID: 2925545736976168742, guid: 77b60c8740b42a4418d766a8c9a206e8, type: 3}
-  pillarCount: 4
-  pillarSpawnRadius: 10
-  pillarSpawnHeight: 1
-  pillarPhaseInterval: 10
-  pillarRangedCooldown: 1.5
 --- !u!114 &167049068
 MonoBehaviour:
   m_ObjectHideFlags: 0

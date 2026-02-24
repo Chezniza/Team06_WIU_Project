@@ -3,14 +3,14 @@ using UnityEngine;
 
 public class PillarHealth : MonoBehaviour
 {
-    [Header("Stats")]
-    [SerializeField] private int maxHealth = 50;
+  //  [Header("Stats")]
+    //[SerializeField] private int maxHealth = 50;
 
     [Header("Rise Animation")]
     [SerializeField] private float riseDistance = 2f;   // how far below ground it starts
     [SerializeField] private float riseDuration  = 0.6f; // how long the rise takes
 
-    private int    currentHealth;
+    
     private BossAI boss;
     private bool   isDead = false;
 

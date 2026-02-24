@@ -587,15 +587,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.45219
+      value: 0.22569
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.02902
+      value: 7.03512
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 36.1829
+      value: 27.93
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1524,7 +1524,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   impulse: {fileID: 0}
-  characterController: {fileID: 0}
+  characterController: {fileID: 2083992822083958414}
   attackHitEvent:
     m_PersistentCalls:
       m_Calls:

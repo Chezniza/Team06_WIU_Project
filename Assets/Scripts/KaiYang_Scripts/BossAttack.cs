@@ -343,12 +343,15 @@ public class SummonMinionAttack : BossAttackBase
             Vector3 offset   = Quaternion.Euler(0f, angle, 0f) * Vector3.forward * spawnRadius;
             Vector3 spawnPos = ctx.Boss.transform.position + offset;
 
-            // Snap to ground
+            // Snap to ground and offset up by half the minion's height so it stands on surface
             if (Physics.Raycast(spawnPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 15f))
                 spawnPos = hit.point;
 
             // Pick a random prefab from the pool
             GameObject prefab = minionPrefabs[Random.Range(0, minionPrefabs.Length)];
+            // Offset up by half height so minion stands on ground instead of sinking in
+            float halfHeight = prefab.transform.localScale.y * 0.5f;
+            spawnPos += Vector3.up * halfHeight;
             GameObject minion = Object.Instantiate(prefab, spawnPos, Quaternion.identity);
 
             // Reset animator so the Die trigger from a previous run doesn't carry over

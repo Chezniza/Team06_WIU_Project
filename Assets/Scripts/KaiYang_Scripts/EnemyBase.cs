@@ -45,6 +45,16 @@ public abstract class EnemyBase : MonoBehaviour
     // UNITY LIFECYCLE  (subclasses call base.Update or override fully)
     // ─────────────────────────────────────────────
 
+    protected virtual void Awake()
+    {
+        // Auto-find player if not assigned in Inspector
+        if (player == null)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p.transform;
+        }
+    }
+
     protected virtual void Update()
     {
         if (!player) return;
