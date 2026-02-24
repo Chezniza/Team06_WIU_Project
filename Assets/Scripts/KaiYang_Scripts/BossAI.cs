@@ -4,9 +4,9 @@ using UnityEngine;
 
 // ============================================================
 //  BossAI.cs
-//  Two-phase boss: melee combo, ranged burst, AoE spell,
-//  and a Phase 2 pillar mechanic that locks movement.
-//  Inherits shared movement, blocking, and gravity from EnemyBase.
+//  FSM and phase logic only — all attack logic lives in BossAttack.cs.
+//  To add a new attack: write a new class in BossAttack.cs, then
+//  instantiate it in SetupAttacks() below. That's it.
 // ============================================================
 
 public class BossAI : EnemyBase
@@ -19,15 +19,14 @@ public class BossAI : EnemyBase
 
     [Header("Phase Transition")]
     [SerializeField] private float phase2HPThreshold        = 0.5f;
-    [SerializeField] private float phase2SpeedBonus         = 1.2f;
     [SerializeField] private float phase2BlockChance        = 0.4f;
     [SerializeField] private float phase2AttackCooldownMult = 0.7f;
 
     [Header("Ranged Attack")]
     [SerializeField] private Transform  AimPoint;
-    [SerializeField] private float      rangedRange    = 10f;
-    [SerializeField] private float      rangedCooldown = 3.5f;
-    [SerializeField] private int        rangedDamage   = 15;
+    [SerializeField] private float      rangedRange        = 10f;
+    [SerializeField] private float      rangedCooldown     = 3.5f;
+    [SerializeField] private int        rangedDamage       = 15;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private Transform  projectileSpawnPoint;
     [SerializeField] private GameObject burstProjectilePrefab;
@@ -38,14 +37,16 @@ public class BossAI : EnemyBase
     [SerializeField] private float      aoeRadius      = 4f;
     [SerializeField] private float      aoeDelay       = 1.2f;
     [SerializeField] private GameObject aoeWarningPrefab;
+    [SerializeField] private GameObject spellProjectilePrefab;  // sphere that drops on impact
+    [SerializeField] private float      spellDropHeight = 8f;   // how high above target it spawns
 
     [Header("Pillar Phase (Phase 2 only)")]
     [SerializeField] private GameObject pillarPrefab;
     [SerializeField] private int        pillarCount          = 4;
-    [SerializeField] private float      pillarSpawnRadius    = 4f;    // distance from boss
-    [SerializeField] private float      pillarSpawnHeight    = 0f;    // vertical offset
-    [SerializeField] private float      pillarPhaseInterval  = 30f;   // seconds between pillar phases
-    [SerializeField] private float      pillarRangedCooldown = 1.5f;  // faster shooting while locked
+    [SerializeField] private float      pillarSpawnRadius    = 4f;
+    [SerializeField] private float      pillarSpawnHeight    = 0f;
+    [SerializeField] private float      pillarPhaseInterval  = 30f;
+    [SerializeField] private float      pillarRangedCooldown = 1.5f;
 
     // ─────────────────────────────────────────────
     // PRIVATE STATE
@@ -56,10 +57,83 @@ public class BossAI : EnemyBase
 
     private float rangedTimer      = 0f;
     private float spellTimer       = 0f;
-    private float pillarPhaseTimer = 30f;  // matches pillarPhaseInterval default — set via DoPhaseTransition
+    private float pillarPhaseTimer = 30f;
 
     private bool               inPillarPhase = false;
     private List<PillarHealth> activePillars = new List<PillarHealth>();
+
+    // ── Attack instances (set up in SetupAttacks) ────────────
+    private BasicAttack        basicAttack;
+    private HeavyComboAttack   heavyComboAttack;
+    private RangedAttack       rangedAttack;
+    private PillarRangedAttack pillarRangedAttack;
+    private SpellAttack        spellAttack;
+
+    private BossContext ctx;
+
+    // ─────────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────────
+
+    private void Start()
+    {
+        SetupAttacks();
+    }
+
+    private void SetupAttacks()
+    {
+        // Build the shared context
+        ctx = new BossContext
+        {
+            Boss          = this,
+            Player        = player,
+            Animator      = animator,
+            Controller    = controller,
+            AttackHandler = attackHandler,
+            CurrentPhase  = currentPhase,
+            AoeRadius            = aoeRadius,
+            SpellProjectilePrefab = spellProjectilePrefab,
+            SpellDropHeight       = spellDropHeight,
+        };
+
+        // ── Instantiate attacks here — add new ones below ────
+        basicAttack = new BasicAttack(heavyChance: 0.25f);
+
+        heavyComboAttack = new HeavyComboAttack(attackCooldownMult: phase2AttackCooldownMult);
+
+        rangedAttack = new RangedAttack(
+            damage:                rangedDamage,
+            cooldown:              rangedCooldown,
+            projectilePrefab:      projectilePrefab,
+            spawnPoint:            projectileSpawnPoint,
+            burstProjectilePrefab: burstProjectilePrefab,
+            aimPoint:              AimPoint
+        );
+
+        pillarRangedAttack = new PillarRangedAttack(
+            damage:                rangedDamage,
+            cooldown:              pillarRangedCooldown,
+            projectilePrefab:      projectilePrefab,
+            spawnPoint:            projectileSpawnPoint,
+            burstProjectilePrefab: burstProjectilePrefab,
+            aimPoint:              AimPoint
+        );
+
+        spellAttack = new SpellAttack(
+            damage:        spellDamage,
+            radius:        aoeRadius,
+            delay:         aoeDelay,
+            cooldown:      spellCooldown,
+            warningPrefab: aoeWarningPrefab
+        );
+
+        // Give every attack the shared context
+        basicAttack.SetContext(ctx);
+        heavyComboAttack.SetContext(ctx);
+        rangedAttack.SetContext(ctx);
+        pillarRangedAttack.SetContext(ctx);
+        spellAttack.SetContext(ctx);
+    }
 
     // ─────────────────────────────────────────────
     // UNITY LIFECYCLE
@@ -70,17 +144,19 @@ public class BossAI : EnemyBase
         if (!phaseTransitionDone)
             CheckPhaseTransition();
 
+        // Keep context phase in sync
+        ctx.CurrentPhase = currentPhase;
+
+        // Tick cooldowns
         rangedTimer = Mathf.Max(0f, rangedTimer - Time.deltaTime);
         spellTimer  = Mathf.Max(0f, spellTimer  - Time.deltaTime);
 
-        // Pillar phase interval tick — only in Phase 2, outside an active pillar phase
-        // Ticks even while blocking so the boss can't get stuck in block forever
+        // Pillar timer ticks even while blocking so boss can't get permanently stuck
         if (currentPhase == BossPhase.Phase2 && !inPillarPhase && !isActing)
         {
             pillarPhaseTimer -= Time.deltaTime;
             if (pillarPhaseTimer <= 0f)
             {
-                // Force-stop any stuck state before starting pillar phase
                 StopAllCoroutines();
                 isActing   = false;
                 isBlocking = false;
@@ -90,15 +166,22 @@ public class BossAI : EnemyBase
             }
         }
 
-        // Blocking: freeze in place (checked AFTER pillar timer so block can't prevent phase start)
+        // Blocking: tick timer manually here so it counts down even though
+        // we return early and never reach base.Update() where it normally ticks
         if (isBlocking)
         {
+            blockTimer -= Time.deltaTime;
+            if (blockTimer <= 0f)
+            {
+                isBlocking = false;
+                attackHandler.StopBlock();
+            }
             animator.SetBool("IsWalking", false);
             ApplyGravity();
             return;
         }
 
-        // During pillar phase: rooted in place, shoot only
+        // Pillar phase: rooted, shooting only
         if (inPillarPhase)
         {
             animator.SetBool("IsWalking", false);
@@ -108,11 +191,11 @@ public class BossAI : EnemyBase
             return;
         }
 
-        base.Update();  // normal FSM
+        base.Update();
     }
 
     // ─────────────────────────────────────────────
-    // CHASE & ATTACK (normal FSM hooks)
+    // FSM HOOKS
     // ─────────────────────────────────────────────
 
     protected override void OnChaseRange(float distance)
@@ -121,12 +204,18 @@ public class BossAI : EnemyBase
         {
             if (currentPhase == BossPhase.Phase2 && spellTimer <= 0f)
             {
-                StartCoroutine(SpellAttack());
+                // Set timer BEFORE RunAttack — RunAttack starts a coroutine and
+                // returns immediately, so setting after would leave timer at 0
+                // for the next frame, allowing a second spell to fire instantly.
+                spellTimer  = spellCooldown;
+                rangedTimer = rangedCooldown * 0.5f;
+                RunAttack(spellAttack);
                 return;
             }
             if (rangedTimer <= 0f && projectilePrefab != null)
             {
-                StartCoroutine(RangedAttack());
+                rangedTimer = rangedCooldown;   // set BEFORE coroutine starts
+                RunAttack(rangedAttack);
                 return;
             }
         }
@@ -148,16 +237,30 @@ public class BossAI : EnemyBase
 
         if (Random.value < currentBlockChance) { StartAIBlock(); return; }
 
+        // Phase 2: combo roll
         if (currentPhase == BossPhase.Phase2 && Random.value < 0.4f)
         {
-            StartCoroutine(HeavyComboAttack());
+            RunAttack(heavyComboAttack);
+            attackTimer = attackCooldown * phase2AttackCooldownMult;
             return;
         }
 
-        if (Random.value < 0.25f) attackHandler.RequestHeavyAttack();
-        else                      attackHandler.RequestLightAttack();
-
+        // Fallback basic hit
+        RunAttack(basicAttack);
         attackTimer = attackCooldown;
+    }
+
+    // Wraps any attack in the isActing coroutine lock
+    private void RunAttack(BossAttackBase attack)
+    {
+        StartCoroutine(ExecuteAttack(attack));
+    }
+
+    private IEnumerator ExecuteAttack(BossAttackBase attack)
+    {
+        isActing = true;
+        yield return StartCoroutine(attack.Execute());
+        isActing = false;
     }
 
     // ─────────────────────────────────────────────
@@ -173,12 +276,11 @@ public class BossAI : EnemyBase
         animator.SetBool("IsWalking", false);
         animator.SetTrigger("SpellCast");
 
-        yield return new WaitForSeconds(1f);    // windup before pillars appear
+        yield return new WaitForSeconds(1f);
 
         SpawnPillars();
         Debug.Log($"[{enemyName}] Pillar phase — {activePillars.Count} pillars spawned.");
 
-        // Wait until every pillar has been destroyed
         yield return new WaitUntil(() => activePillars.Count == 0);
 
         Debug.Log($"[{enemyName}] All pillars destroyed — resuming normal behaviour.");
@@ -197,131 +299,43 @@ public class BossAI : EnemyBase
         }
 
         float angleStep = 360f / pillarCount;
-
         for (int i = 0; i < pillarCount; i++)
         {
             float   angle    = i * angleStep;
             Vector3 offset   = Quaternion.Euler(0f, angle, 0f) * Vector3.forward * pillarSpawnRadius;
             Vector3 spawnPos = transform.position + offset + Vector3.up * pillarSpawnHeight;
 
-            // Snap to ground on uneven terrain
             if (Physics.Raycast(spawnPos + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 15f))
                 spawnPos = hit.point + Vector3.up * (pillarPrefab.transform.localScale.y * 0.5f);
 
-            GameObject    go = Instantiate(pillarPrefab, spawnPos, Quaternion.identity);
-            PillarHealth  ph = go.GetComponent<PillarHealth>();
+            GameObject   go = Instantiate(pillarPrefab, spawnPos, Quaternion.identity);
+            PillarHealth ph = go.GetComponent<PillarHealth>();
 
-            if (ph != null)
-            {
-                ph.Init(this);
-                activePillars.Add(ph);
-            }
-            else
-            {
-                Debug.LogWarning($"[{enemyName}] Pillar prefab missing PillarHealth component!");
-            }
+            if (ph != null) { ph.Init(this); activePillars.Add(ph); }
+            else Debug.LogWarning($"[{enemyName}] Pillar prefab missing PillarHealth component!");
         }
     }
 
-    // Called by PillarHealth.Die()
     public void OnPillarDestroyed(PillarHealth pillar)
     {
         activePillars.Remove(pillar);
         Debug.Log($"[{enemyName}] Pillar down — {activePillars.Count} remaining.");
     }
 
-    // Shoot logic while rooted during pillar phase
     private void PillarPhaseShoot()
     {
         if (isActing) return;
-
         if (rangedTimer <= 0f && projectilePrefab != null)
         {
-            StartCoroutine(PillarRangedAttack());
-            return;
+            rangedTimer = pillarRangedCooldown;   // set BEFORE coroutine starts
+            RunAttack(pillarRangedAttack);
         }
-
-        if (spellTimer <= 0f)
-            StartCoroutine(SpellAttack());
-    }
-
-    private IEnumerator PillarRangedAttack()
-    {
-        isActing = true;
-        animator.SetTrigger("RangedShot");
-
-        yield return new WaitForSeconds(0.4f);
-
-        FireProjectile(burstProjectilePrefab ?? projectilePrefab);
-        yield return new WaitForSeconds(0.1f);
-        FireProjectileAngled(burstProjectilePrefab ?? projectilePrefab,  15f);
-        yield return new WaitForSeconds(0.1f);
-        FireProjectileAngled(burstProjectilePrefab ?? projectilePrefab, -15f);
-
-        rangedTimer = pillarRangedCooldown;
-        isActing    = false;
-    }
-
-    // ─────────────────────────────────────────────
-    // STANDARD ATTACKS
-    // ─────────────────────────────────────────────
-
-    private IEnumerator HeavyComboAttack()
-    {
-        isActing = true;
-        animator.SetTrigger("MeleeCombo");
-        attackHandler.RequestHeavyAttack();
-        yield return new WaitForSeconds(0.4f);
-        attackHandler.RequestLightAttack();
-        attackTimer = attackCooldown * phase2AttackCooldownMult;
-        isActing = false;
-    }
-
-    private IEnumerator RangedAttack()
-    {
-        isActing = true;
-        animator.SetBool("IsWalking", false);
-        animator.SetTrigger("RangedShot");
-
-        yield return new WaitForSeconds(0.5f);
-        if (isBlocking) { isActing = false; yield break; }
-
-        if (currentPhase == BossPhase.Phase2)
+        else if (spellTimer <= 0f)
         {
-            FireProjectile(burstProjectilePrefab ?? projectilePrefab);
-            yield return new WaitForSeconds(0.12f);
-            FireProjectileAngled(burstProjectilePrefab ?? projectilePrefab,  15f);
-            yield return new WaitForSeconds(0.12f);
-            FireProjectileAngled(burstProjectilePrefab ?? projectilePrefab, -15f);
+            spellTimer  = spellCooldown;
+            rangedTimer = rangedCooldown * 0.5f;
+            RunAttack(spellAttack);
         }
-        else
-        {
-            FireProjectile(projectilePrefab);
-        }
-
-        rangedTimer = rangedCooldown;
-        isActing    = false;
-    }
-
-    private IEnumerator SpellAttack()
-    {
-        isActing = true;
-        animator.SetBool("IsWalking", false);
-        animator.SetTrigger("SpellCast");
-
-        Vector3    targetPos = player.position;
-        GameObject warning   = null;
-        if (aoeWarningPrefab != null)
-            warning = Instantiate(aoeWarningPrefab, targetPos, Quaternion.identity);
-
-        yield return new WaitForSeconds(aoeDelay);
-
-        if (warning != null) Destroy(warning);
-        DealAoeDamage(targetPos, aoeRadius, spellDamage);
-
-        spellTimer  = spellCooldown;
-        rangedTimer = rangedCooldown * 0.5f;
-        isActing    = false;
     }
 
     // ─────────────────────────────────────────────
@@ -346,50 +360,11 @@ public class BossAI : EnemyBase
         yield return new WaitForSeconds(3f);
 
         currentPhase     = BossPhase.Phase2;
-        pillarPhaseTimer = pillarPhaseInterval;     // first pillar phase fires after interval
+        pillarPhaseTimer = pillarPhaseInterval;
         attackCooldown  *= phase2AttackCooldownMult;
 
         Debug.Log($"[{enemyName}] Entered Phase 2!");
         isActing = false;
-    }
-
-    // ─────────────────────────────────────────────
-    // PROJECTILE HELPERS
-    // ─────────────────────────────────────────────
-
-    private Vector3 GetAimPosition() =>
-        AimPoint != null ? AimPoint.position : player.position + Vector3.up * 1f;
-
-    private void FireProjectile(GameObject prefab)
-    {
-        if (prefab == null || projectileSpawnPoint == null) return;
-        Vector3    dir = (GetAimPosition() - projectileSpawnPoint.position).normalized;
-        GameObject p   = Instantiate(prefab, projectileSpawnPoint.position, Quaternion.LookRotation(dir));
-        InitProjectile(p, dir);
-    }
-
-    private void FireProjectileAngled(GameObject prefab, float angleOffset)
-    {
-        if (prefab == null || projectileSpawnPoint == null) return;
-        Vector3 baseDir = (GetAimPosition() - projectileSpawnPoint.position).normalized;
-        Vector3 dir     = Quaternion.Euler(0f, angleOffset, 0f) * baseDir;
-        GameObject p    = Instantiate(prefab, projectileSpawnPoint.position, Quaternion.LookRotation(dir));
-        InitProjectile(p, dir);
-    }
-
-    private void InitProjectile(GameObject p, Vector3 dir)
-    {
-        Projectiles proj = p.GetComponent<Projectiles>();
-        if (proj == null) return;
-        proj.Init(rangedDamage, dir, AimPoint);
-        if (currentPhase == BossPhase.Phase2) proj.EnableHoming();
-    }
-
-    private void DealAoeDamage(Vector3 origin, float radius, int dmg)
-    {
-        foreach (var hit in Physics.OverlapSphere(origin, radius))
-            if (hit.CompareTag("Player"))
-                hit.GetComponent<Damageable>()?.TakeDamage(dmg);
     }
 
     // ─────────────────────────────────────────────
@@ -408,5 +383,6 @@ public class BossAI : EnemyBase
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, pillarSpawnRadius);
+
     }
 }

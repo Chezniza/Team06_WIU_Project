@@ -1310,7 +1310,6 @@ MonoBehaviour:
   blockChance: 0.2
   blockDurationRange: {x: 0.5, y: 1.2}
   phase2HPThreshold: 0.9
-  phase2SpeedBonus: 1.2
   phase2BlockChance: 0.4
   phase2AttackCooldownMult: 0.7
   AimPoint: {fileID: 920242147}
@@ -1322,14 +1321,16 @@ MonoBehaviour:
   burstProjectilePrefab: {fileID: 4699481031474668086, guid: 3687e26ff57b3624a9469a7c0e3ca663, type: 3}
   spellCooldown: 6
   spellDamage: 30
-  aoeRadius: 4
+  aoeRadius: 1
   aoeDelay: 1.2
   aoeWarningPrefab: {fileID: 3401152098043458202, guid: e8b95922ab7a14245bbe32131a936555, type: 3}
+  spellProjectilePrefab: {fileID: 791193111904105397, guid: e155997749b472b44b4f90cd53731c3a, type: 3}
+  spellDropHeight: 10
   pillarPrefab: {fileID: 2925545736976168742, guid: 77b60c8740b42a4418d766a8c9a206e8, type: 3}
   pillarCount: 4
   pillarSpawnRadius: 10
-  pillarSpawnHeight: 0
-  pillarPhaseInterval: 4
+  pillarSpawnHeight: 1
+  pillarPhaseInterval: 30
   pillarRangedCooldown: 1.5
 --- !u!114 &167049068
 MonoBehaviour:
@@ -2391,6 +2392,18 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -2429,6 +2442,10 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8614143935442447740, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       propertyPath: m_Layer
@@ -3117,7 +3134,7 @@ Transform:
   m_GameObject: {fileID: 514339401}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.293, z: -0.5}
+  m_LocalPosition: {x: -0.331, y: 1.293, z: -0.328}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

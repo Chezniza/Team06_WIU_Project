@@ -130,8 +130,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PillarHealth
   maxHealth: 50
-  riseDistance: 3.5
-  riseDuration: 0.8
+  riseDistance: 3
+  riseDuration: 0.6
 --- !u!114 &7177979623952090299
 MonoBehaviour:
   m_ObjectHideFlags: 0
