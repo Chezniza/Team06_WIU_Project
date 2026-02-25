@@ -7925,6 +7925,7 @@ MonoBehaviour:
   _itemTilePrefab: {fileID: 3512316634111563191, guid: 6a11564346b643d44afbbe3b48e17675, type: 3}
   cellSize: 64
   _canvas: {fileID: 1016372012}
+  _inputHandler: {fileID: 0}
   slotHelmet: {fileID: 827223697}
   slotChestplate: {fileID: 1899315192}
   slotPants: {fileID: 2043740982}
@@ -8367,6 +8368,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c86c0be21b0ca4340bd56bc6c9d287ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
+  _inputHandler: {fileID: 1481967575}
   dialogueTrigger:
     m_PersistentCalls:
       m_Calls:
@@ -12740,9 +12742,11 @@ MonoBehaviour:
   dialogueText: {fileID: 1243474670}
   NPCName: Gudetama
   lines:
-  - nigger
-  - nibba
+  - llllllllllllllllllll
+  - hhhhhhhhhhhhhhhhhhhh
+  - tttttttttttttttttttttttttttttttttttt
   textSpeed: 0.05
+  _dialogueTrigger: {fileID: 1126001275}
 --- !u!4 &1764406711 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d193266f359c4ee4b8ef0a516c5345ac, type: 3}
