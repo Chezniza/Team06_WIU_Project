@@ -14,6 +14,7 @@ public class Dialogue : MonoBehaviour
     private int startIndex;
     private int endIndex;
     private int currentIndex; // track what line we�re on
+    private bool isTyping;
 
     void OnEnable()
     {
@@ -49,10 +50,12 @@ public class Dialogue : MonoBehaviour
 
     IEnumerator TypeLine()
     {
+        isTyping = true;
+
         string line = lines[currentIndex];
         dialogueText.text = string.Empty;
 
-        // Wait one frame to ensure UI updates (a missing character bug occurs without this)
+        // Wait one frame to ensure UI updates
         yield return null;
 
         for (int i = 0; i < line.Length; i++)
@@ -60,6 +63,8 @@ public class Dialogue : MonoBehaviour
             dialogueText.text += line[i];
             yield return new WaitForSeconds(textSpeed);
         }
+
+        isTyping = false;
     }
 
     void NextLine()
@@ -80,16 +85,16 @@ public class Dialogue : MonoBehaviour
 
     public void Click()
     {
-        // If line finished, go to next
-        if (dialogueText.text == lines[currentIndex])
-        {
-            NextLine();
-        }
-        // If still typing, instantly complete line
-        else
+        // Skip line if user clicks while still text still typing
+        if (isTyping)
         {
             StopAllCoroutines();
             dialogueText.text = lines[currentIndex];
+            isTyping = false;
+        }
+        else
+        {
+            NextLine();
         }
     }
 }
