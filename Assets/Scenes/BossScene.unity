@@ -17822,12 +17822,7 @@ MonoBehaviour:
   gridWidth: 8
   gridHeight: 6
   startingItems:
-  - {fileID: 11400000, guid: 34a9ba6939d57634da107d8630b03d27, type: 2}
-  - {fileID: 11400000, guid: bd0c4cff1c9305b45a973589f8acc282, type: 2}
-  - {fileID: 11400000, guid: 45c8c614d7a91c04bbfc357163c5d271, type: 2}
-  - {fileID: 11400000, guid: bfa64822e05579846beee32225265a8e, type: 2}
-  - {fileID: 11400000, guid: f2fe928c28c8b6f43abd9f71d860064e, type: 2}
-  - {fileID: 11400000, guid: 87eed1df702a80e489ac7b65ff2317b1, type: 2}
+  - {fileID: 11400000, guid: 70891b0f359b6f849a629fca6b370fbf, type: 2}
 --- !u!1 &1508643183
 GameObject:
   m_ObjectHideFlags: 0
