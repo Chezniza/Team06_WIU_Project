@@ -28,12 +28,12 @@ public class Dialogue : MonoBehaviour
         dialogueText.text = string.Empty;
     }
 
-    public void setStartIndex(int num)
+    private void setStartIndex(int num)
     {
         startIndex = num;
     }
 
-    public void setEndIndex(int num)
+    private void setEndIndex(int num)
     {
         endIndex = num;
     }
@@ -41,6 +41,11 @@ public class Dialogue : MonoBehaviour
     public void PlayDialogue()
     {
         StopAllCoroutines();
+
+        // Init start and end index
+        setStartIndex(0);
+        setEndIndex(lines.Length - 1);
+
         nameText.text = NPCName;
         dialogueBox.SetActive(true);
 
@@ -78,8 +83,6 @@ public class Dialogue : MonoBehaviour
         else
         {
             dialogueBox.SetActive(false);
-
-            Debug.Log("dialogue end");
         }
     }
 
