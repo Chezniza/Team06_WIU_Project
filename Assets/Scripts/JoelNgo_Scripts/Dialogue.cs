@@ -11,44 +11,33 @@ public class Dialogue : MonoBehaviour
     public string[] lines;
     public float textSpeed = 0.05f;
 
+    // Drag the DialogueTrigger on the same NPC into this field
+    [SerializeField] private DialogueTrigger _dialogueTrigger;
+
     private int startIndex;
     private int endIndex;
-    private int currentIndex; // track what line we�re on
+    private int currentIndex;
     private bool isTyping;
 
     void OnEnable()
     {
-        // Do nothing prevent Unity from auto-typing a line
         nameText.text = string.Empty;
         dialogueText.text = string.Empty;
     }
+
     void Start()
     {
         nameText.text = string.Empty;
         dialogueText.text = string.Empty;
     }
 
-    private void setStartIndex(int num)
-    {
-        startIndex = num;
-    }
-
-    private void setEndIndex(int num)
-    {
-        endIndex = num;
-    }
-
     public void PlayDialogue()
     {
         StopAllCoroutines();
-
-        // Init start and end index
-        setStartIndex(0);
-        setEndIndex(lines.Length - 1);
-
+        startIndex = 0;
+        endIndex = lines.Length - 1;
         nameText.text = NPCName;
         dialogueBox.SetActive(true);
-
         currentIndex = startIndex;
         StartCoroutine(TypeLine());
     }
@@ -56,19 +45,14 @@ public class Dialogue : MonoBehaviour
     IEnumerator TypeLine()
     {
         isTyping = true;
-
         string line = lines[currentIndex];
         dialogueText.text = string.Empty;
-
-        // Wait one frame to ensure UI updates
         yield return null;
-
         for (int i = 0; i < line.Length; i++)
         {
             dialogueText.text += line[i];
             yield return new WaitForSeconds(textSpeed);
         }
-
         isTyping = false;
     }
 
@@ -82,13 +66,14 @@ public class Dialogue : MonoBehaviour
         }
         else
         {
+            // Dialogue finished — close box and unlock player
             dialogueBox.SetActive(false);
+            _dialogueTrigger?.OnDialogueEnd();
         }
     }
 
     public void Click()
     {
-        // Skip line if user clicks while still text still typing
         if (isTyping)
         {
             StopAllCoroutines();

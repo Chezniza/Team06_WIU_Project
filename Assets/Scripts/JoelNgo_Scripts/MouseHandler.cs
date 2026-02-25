@@ -10,8 +10,10 @@ public class MouseHandler : MonoBehaviour
     void Update()
     {
         bool inventoryOpen = InventoryUI.Instance != null && InventoryUI.Instance.IsInventoryOpen();
+        bool dialogueOpen = DialogueManager.IsDialogueOpen();
+        bool wheelOpen = ShortcutWheel.Instance != null && ShortcutWheel.Instance.IsOpen();
 
-        if (inventoryOpen)
+        if (inventoryOpen || dialogueOpen || wheelOpen)
             UnlockCursor();
         else
             LockCursor();
