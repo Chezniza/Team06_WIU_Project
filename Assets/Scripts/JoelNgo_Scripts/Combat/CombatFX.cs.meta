@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 19e44fe6732e69847be4924e544f7caf
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - blockFX: {fileID: 8024224453239533938, guid: a7211a5083f8d9b44a6aecbc67a1f3a2, type: 3}
+  - parryFX: {fileID: 8024224453239533938, guid: 46847f792ad6be34a8c8a5b387a86843, type: 3}
+  - hitFX: {fileID: 8024224453239533938, guid: 2ae87850d83c2c942ae943a329ac4604, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
