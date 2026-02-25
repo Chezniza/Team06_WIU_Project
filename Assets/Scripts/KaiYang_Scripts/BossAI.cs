@@ -53,6 +53,14 @@ public class BossAI : EnemyBase
     [SerializeField] private float      pillarRangedCooldown = 1.5f;
 
 
+    [Header("Slam Attack")]
+    [SerializeField] private int        slamDamage        = 60;
+    [SerializeField] private float      slamCooldown      = 15f;
+    [SerializeField] private float      slamChargeTime    = 1.5f;
+    [SerializeField] private float      slamRadius        = 12f;
+    [SerializeField] private GameObject slamWarningPrefab;
+    [SerializeField] private float      slamWarningHeightOffset = 0.05f; // tweak if disc spawns under the floor
+
     [Header("Minion Summon (Phase 3)")]
     [SerializeField] private GameObject[] minionPrefabs;          // drag minion prefabs here
     [SerializeField] private int minionCount = 2;
@@ -73,6 +81,7 @@ public class BossAI : EnemyBase
     private float spellTimer       = 0f;
     private float pillarPhaseTimer = 30f;
     private float summonTimer         = 0f;
+    private float slamTimer           = 0f;
 
     private bool               inPillarPhase = false;
     private List<PillarHealth> activePillars = new List<PillarHealth>();
@@ -84,6 +93,7 @@ public class BossAI : EnemyBase
     private PillarRangedAttack pillarRangedAttack;
     private SpellAttack        spellAttack;
     private SummonMinionAttack summonAttack;
+    private SlamAttack         slamAttack;
 
     private BossContext ctx;
 
@@ -116,6 +126,7 @@ public class BossAI : EnemyBase
         basicAttack = new BasicAttack(heavyChance: 0.25f);
 
         heavyComboAttack = new HeavyComboAttack(attackCooldownMult: phase2AttackCooldownMult);
+
 
         rangedAttack = new RangedAttack(
             damage:                rangedDamage,
@@ -156,6 +167,15 @@ public class BossAI : EnemyBase
             warningPrefab: aoeWarningPrefab
         );
 
+        slamAttack = new SlamAttack(
+            damage:               slamDamage,
+            cooldown:             slamCooldown,
+            chargeTime:           slamChargeTime,
+            slamRadius:           slamRadius,
+            warningPrefab:        slamWarningPrefab,
+            warningHeightOffset:  slamWarningHeightOffset
+        );
+
         // Give every attack the shared context
         basicAttack.SetContext(ctx);
         heavyComboAttack.SetContext(ctx);
@@ -163,6 +183,7 @@ public class BossAI : EnemyBase
         pillarRangedAttack.SetContext(ctx);
         spellAttack.SetContext(ctx);
         summonAttack.SetContext(ctx);
+        slamAttack.SetContext(ctx);
     }
 
     // ─────────────────────────────────────────────
@@ -180,10 +201,11 @@ public class BossAI : EnemyBase
         // Tick cooldowns
         rangedTimer = Mathf.Max(0f, rangedTimer - Time.deltaTime);
         summonTimer = Mathf.Max(0f, summonTimer - Time.deltaTime);
+        slamTimer   = Mathf.Max(0f, slamTimer   - Time.deltaTime);
         spellTimer  = Mathf.Max(0f, spellTimer  - Time.deltaTime);
 
         // Pillar timer ticks even while blocking so boss can't get permanently stuck
-        if (currentPhase == BossPhase.Phase2 && !inPillarPhase && !isActing)
+        if ((currentPhase == BossPhase.Phase2 || currentPhase == BossPhase.Phase3) && !inPillarPhase && !isActing)
         {
             pillarPhaseTimer -= Time.deltaTime;
             if (pillarPhaseTimer <= 0f)
@@ -273,6 +295,15 @@ public class BossAI : EnemyBase
 
         if (Random.value < currentBlockChance) { StartAIBlock(); return; }
 
+        // Phase 2+: slam attack — highest priority, telegraphed so player can dodge
+        if (slamTimer <= 0f)
+        {
+            slamTimer   = float.MaxValue;  // block re-trigger until coroutine resets it on completion
+            attackTimer = attackCooldown;
+            RunAttack(slamAttack);
+            return;
+        }
+
         // Phase 2: combo roll
         if ((currentPhase == BossPhase.Phase2 || currentPhase == BossPhase.Phase3) && Random.value < 0.4f)
         {
@@ -296,6 +327,12 @@ public class BossAI : EnemyBase
     {
         isActing = true;
         yield return StartCoroutine(attack.Execute());
+        // Read slam cooldown write-back after attack finishes
+        if (ctx.SlamCooldownRemaining > 0f)
+        {
+            slamTimer                   = ctx.SlamCooldownRemaining;
+            ctx.SlamCooldownRemaining   = 0f;
+        }
         isActing = false;
     }
 
@@ -400,21 +437,25 @@ public class BossAI : EnemyBase
     private IEnumerator DoPhaseTransition()
     {
         isActing = true;
+        isInvincible = true;
         animator.SetTrigger("PhaseTransition");
 
         yield return new WaitForSeconds(3f);
 
         currentPhase     = BossPhase.Phase2;
-        pillarPhaseTimer = pillarPhaseInterval;
+        pillarPhaseTimer = 0;
         attackCooldown  *= phase2AttackCooldownMult;
 
         Debug.Log($"[{enemyName}] Entered Phase 2!");
+        isInvincible = false;
         isActing = false;
+        
     }
 
     private IEnumerator DoPhase3Transition()
     {
         isActing = true;
+        isInvincible = true;
         animator.SetTrigger("PhaseTransition");
 
         yield return new WaitForSeconds(3f);
@@ -424,6 +465,7 @@ public class BossAI : EnemyBase
         summonTimer    = 0f;  // trigger summon immediately on phase 3 entry
 
         Debug.Log($"[{enemyName}] Entered Phase 3!");
+        isInvincible = false;
         isActing = false;
     }
 

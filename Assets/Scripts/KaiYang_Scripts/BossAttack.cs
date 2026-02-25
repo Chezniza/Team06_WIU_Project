@@ -28,6 +28,7 @@ public class BossContext
     // Shared cooldown write-back — attacks set these so BossAI can read them
     public float RangedCooldownRemaining;
     public float SpellCooldownRemaining;
+    public float SlamCooldownRemaining;
 
     // Shared settings
     public float      AoeRadius;
@@ -90,7 +91,118 @@ public class HeavyComboAttack : BossAttackBase
         ctx.AttackHandler.RequestLightAttack();
     }
 }
+public class SlamAttack : BossAttackBase
+{
+    private int        damage;
+    private float      cooldown;
+    private float      chargeTime;
+    private float      slamRadius;
+    private float      flashInterval;
+    private GameObject warningPrefab;
+    private float      warningHeightOffset;  // how high above ground to spawn the warning disc
 
+    public SlamAttack(int damage = 60, float cooldown = 15f, float chargeTime = 1.5f,
+                      float slamRadius = 12f, float flashInterval = 0.4f,
+                      GameObject warningPrefab = null, float warningHeightOffset = 0.05f)
+    {
+        this.damage               = damage;
+        this.cooldown             = cooldown;
+        this.chargeTime           = chargeTime;
+        this.slamRadius           = slamRadius;
+        this.flashInterval        = flashInterval;
+        this.warningPrefab        = warningPrefab;
+        this.warningHeightOffset  = warningHeightOffset;
+    }
+
+    public override IEnumerator Execute()
+    {
+        ctx.Boss.SetInvincible(true);
+        ctx.Animator.SetBool("IsWalking", false);
+        ctx.Animator.SetTrigger("SlamAttack");
+
+        // ── Spawn warning prefab centred on the boss ──────────
+        GameObject warning = null;
+        if (warningPrefab != null)
+        {
+            Vector3 spawnPos = ctx.Boss.transform.position + Vector3.up * warningHeightOffset;
+            warning = Object.Instantiate(warningPrefab, spawnPos, Quaternion.identity);
+            float diameter = slamRadius * 2f;
+            warning.transform.localScale = new Vector3(diameter, 0.01f, diameter);
+            Debug.Log($"[SlamAttack] Warning prefab spawned at {spawnPos}, diameter {diameter}");
+        }
+        else
+        {
+            Debug.LogWarning("[SlamAttack] warningPrefab is null — assign Slam Warning Prefab in Inspector!");
+        }
+
+        Renderer warningRend = warning != null ? warning.GetComponent<Renderer>() : null;
+        if (warning != null && warningRend == null)
+            Debug.LogWarning("[SlamAttack] No Renderer found on warning prefab!");
+
+        float elapsed    = 0f;
+        bool  flashOn    = false;
+        float flashTimer = 0f;
+
+        Debug.Log($"[SlamAttack] Charging — {chargeTime}s until slam...");
+
+        while (elapsed < chargeTime)
+        {
+            elapsed    += Time.deltaTime;
+            flashTimer += Time.deltaTime;
+
+            // Log every 0.5s so you can see it counting down
+            if (Mathf.FloorToInt(elapsed * 2f) != Mathf.FloorToInt((elapsed - Time.deltaTime) * 2f))
+                Debug.Log($"[SlamAttack] Charging... {elapsed:F1}s / {chargeTime}s");
+
+            // Flash starts slow and only gently speeds up near the end
+            float interval = Mathf.Lerp(flashInterval, flashInterval * 0.5f, elapsed / chargeTime);
+            if (flashTimer >= interval)
+            {
+                flashOn    = !flashOn;
+                flashTimer = 0f;
+
+                if (warningRend != null)
+                {
+                    Color c = warningRend.material.color;
+                    c.a = flashOn ? 0.8f : 0.3f;
+                    warningRend.material.color = c;
+                }
+            }
+
+            yield return null;
+        }
+
+        // ── Slam — destroy warning and deal damage ────────────
+        if (warning != null) Object.Destroy(warning);
+
+        CharacterController playerCC = ctx.Player.GetComponent<CharacterController>();
+        bool playerGrounded = playerCC != null ? playerCC.isGrounded : true;
+
+        if (playerGrounded)
+        {
+            float dist = Vector3.Distance(ctx.Boss.transform.position, ctx.Player.position);
+            if (dist <= slamRadius)
+            {
+                ctx.Player.GetComponent<Damageable>()?.TakeDamage(damage);
+
+                Animator playerAnim = ctx.Player.GetComponent<Animator>();
+                if (playerAnim != null) playerAnim.SetTrigger("Stagger");
+
+                Debug.Log("[BossAI] Slam hit grounded player!");
+            }
+        }
+        else
+        {
+            Debug.Log("[BossAI] Slam missed — player jumped!");
+        }
+
+        yield return new WaitForSeconds(0.5f); // recovery
+
+        ctx.RangedCooldownRemaining = cooldown;
+        ctx.SlamCooldownRemaining   = cooldown;
+        ctx.Boss.SetInvincible(false);
+    }
+}
 // ── Single or fan-burst ranged shot ─────────────────────────
 public class RangedAttack : BossAttackBase
 {
@@ -326,6 +438,9 @@ public class SummonMinionAttack : BossAttackBase
 
     public override IEnumerator Execute()
     {
+        // Boss is invincible while minions are alive
+        ctx.Boss.SetInvincible(true);
+
         // Summon animation windup
         ctx.Animator.SetBool("IsWalking", false);
         ctx.Animator.SetTrigger("SpellCast");
@@ -405,6 +520,7 @@ public class SummonMinionAttack : BossAttackBase
             yield return null;
         }
 
+        ctx.Boss.SetInvincible(false);
         Debug.Log("[BossAI] All minions dead — boss resuming.");
     }
 
@@ -423,4 +539,6 @@ public class SummonMinionAttack : BossAttackBase
         proj.Init(rangedDamage, dir, aimPoint);
         proj.EnableHoming();
     }
+
+
 }

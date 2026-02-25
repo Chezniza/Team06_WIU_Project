@@ -126,6 +126,7 @@ public abstract class EnemyBase : MonoBehaviour
     }
 
     public bool IsInvincible() => isInvincible;
+    public void SetInvincible(bool value) => isInvincible = value;
 
     public void BreakBlockAndStagger()
     {
