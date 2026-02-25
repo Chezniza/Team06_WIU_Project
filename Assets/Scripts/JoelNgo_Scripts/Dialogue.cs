@@ -4,101 +4,100 @@ using TMPro;
 
 public class Dialogue : MonoBehaviour
 {
-    [Header("UI")]
     public GameObject dialogueBox;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI dialogueText;
-
-    [Header("Settings")]
     public string NPCName;
     public string[] lines;
     public float textSpeed = 0.05f;
 
-    [SerializeField] private DialogueTrigger _dialogueTrigger;
+    private int startIndex;
+    private int endIndex;
+    private int currentIndex; // track what line we�re on
+    private bool isTyping;
 
-    private int _currentIndex;
-    private bool _isTyping = false;
-    private bool _isOpen = false;
-
+    void OnEnable()
+    {
+        // Do nothing prevent Unity from auto-typing a line
+        nameText.text = string.Empty;
+        dialogueText.text = string.Empty;
+    }
     void Start()
     {
-        dialogueBox.SetActive(false);
+        nameText.text = string.Empty;
+        dialogueText.text = string.Empty;
     }
 
-    void Update()
+    private void setStartIndex(int num)
     {
-        if (!_isOpen) return;
+        startIndex = num;
+    }
 
-        if (Input.GetKeyDown(KeyCode.E))
-            Advance();
+    private void setEndIndex(int num)
+    {
+        endIndex = num;
     }
 
     public void PlayDialogue()
     {
-        if (lines == null || lines.Length == 0)
-        {
-            Debug.LogWarning("[Dialogue] No lines assigned!");
-            return;
-        }
-
         StopAllCoroutines();
-        _currentIndex = 0;
-        _isOpen = true;
+
+        // Init start and end index
+        setStartIndex(0);
+        setEndIndex(lines.Length - 1);
+
         nameText.text = NPCName;
-        dialogueText.text = string.Empty;
         dialogueBox.SetActive(true);
+
+        currentIndex = startIndex;
         StartCoroutine(TypeLine());
     }
 
-    private void Advance()
+    IEnumerator TypeLine()
     {
-        if (_isTyping)
-        {
-            StopAllCoroutines();
-            dialogueText.text = lines[_currentIndex];
-            _isTyping = false;
-        }
-        else
-        {
-            NextLine();
-        }
-    }
+        isTyping = true;
 
-    private IEnumerator TypeLine()
-    {
-        _isTyping = true;
+        string line = lines[currentIndex];
         dialogueText.text = string.Empty;
+
+        // Wait one frame to ensure UI updates
         yield return null;
 
-        foreach (char c in lines[_currentIndex])
+        for (int i = 0; i < line.Length; i++)
         {
-            dialogueText.text += c;
+            dialogueText.text += line[i];
             yield return new WaitForSeconds(textSpeed);
         }
 
-        _isTyping = false;
+        isTyping = false;
     }
 
-    private void NextLine()
+    void NextLine()
     {
-        // Last line index is lines.Length - 1
-        if (_currentIndex < lines.Length - 1)
+        if (currentIndex < endIndex)
         {
-            _currentIndex++;
+            currentIndex++;
             dialogueText.text = string.Empty;
             StartCoroutine(TypeLine());
         }
         else
         {
-            EndDialogue();
+            dialogueBox.SetActive(false);
         }
     }
 
-    private void EndDialogue()
+    public void Click()
     {
-        _isOpen = false;
-        _isTyping = false;
-        dialogueBox.SetActive(false);
-        _dialogueTrigger?.OnDialogueEnd();
+        // Skip line if user clicks while still text still typing
+        if (isTyping)
+        {
+            StopAllCoroutines();
+            dialogueText.text = lines[currentIndex];
+            isTyping = false;
+        }
+        else
+        {
+            NextLine();
+        }
     }
 }
