@@ -36,14 +36,11 @@ public class InputHandler : MonoBehaviour
     private enum CameraMode { ThirdPerson, FreeLook, FirstPerson }
     private CameraMode _currentCamera = CameraMode.ThirdPerson;
 
-    // Any system can call LockControls / UnlockControls to freeze the player
     private bool _controlsLocked = false;
 
     public void LockControls()
     {
         _controlsLocked = true;
-
-        // Immediately stop any movement/actions in progress
         _playerController.UpdateMoveInput(Vector2.zero);
         _playerController.UpdateSprintInput(false);
         _playerController.UpdateJumpInput(false);
@@ -53,6 +50,12 @@ public class InputHandler : MonoBehaviour
     public void UnlockControls()
     {
         _controlsLocked = false;
+    }
+
+    // Called by the shortcut wheel restart option
+    public void RestartScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void Start()
@@ -69,19 +72,10 @@ public class InputHandler : MonoBehaviour
 
     void Update()
     {
-        // Camera cycling always works (doesn't affect gameplay)
         CameraInput();
-
-        // Inventory toggle always works
-        // (InventoryUI handles its own toggle via PlayerInput directly)
-
-        // Scene reset always works
-        if (Input.GetKeyDown(KeyCode.R))
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
         if (_controlsLocked)
         {
-            // Zero out movement so player doesn't slide
             _playerController.UpdateMoveInput(Vector2.zero);
             _playerController.UpdateSprintInput(false);
             _playerController.UpdateJumpInput(false);

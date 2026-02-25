@@ -34,7 +34,6 @@ public class ShortcutWheelUI : MonoBehaviour
     {
         _wheelPanel.SetActive(true);
 
-        // Clear old slices
         if (_slices != null)
             foreach (var s in _slices)
                 if (s.root) Destroy(s.root);
@@ -61,8 +60,14 @@ public class ShortcutWheelUI : MonoBehaviour
             slice.background = sliceGO.GetComponent<Image>();
             slice.icon = sliceGO.transform.Find("Icon")?.GetComponent<Image>();
 
-            if (slice.icon && items[i].icon)
-                slice.icon.sprite = items[i].icon;
+            if (slice.icon)
+            {
+                // Force full opacity regardless of prefab alpha setting
+                slice.icon.color = Color.white;
+
+                if (items[i].icon)
+                    slice.icon.sprite = items[i].icon;
+            }
 
             if (slice.background)
                 slice.background.color = _normalColor;
