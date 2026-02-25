@@ -4,92 +4,101 @@ using TMPro;
 
 public class Dialogue : MonoBehaviour
 {
+    [Header("UI")]
     public GameObject dialogueBox;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI dialogueText;
+
+    [Header("Settings")]
     public string NPCName;
     public string[] lines;
     public float textSpeed = 0.05f;
 
-    private int startIndex;
-    private int endIndex;
-    private int currentIndex; // track what line we�re on
+    [SerializeField] private DialogueTrigger _dialogueTrigger;
 
-    void OnEnable()
-    {
-        // Do nothing prevent Unity from auto-typing a line
-        nameText.text = string.Empty;
-        dialogueText.text = string.Empty;
-    }
+    private int _currentIndex;
+    private bool _isTyping = false;
+    private bool _isOpen = false;
+
     void Start()
     {
-        nameText.text = string.Empty;
-        dialogueText.text = string.Empty;
+        dialogueBox.SetActive(false);
     }
 
-    public void setStartIndex(int num)
+    void Update()
     {
-        startIndex = num;
-    }
+        if (!_isOpen) return;
 
-    public void setEndIndex(int num)
-    {
-        endIndex = num;
+        if (Input.GetKeyDown(KeyCode.E))
+            Advance();
     }
 
     public void PlayDialogue()
     {
-        StopAllCoroutines();
-        nameText.text = NPCName;
-        dialogueBox.SetActive(true);
+        if (lines == null || lines.Length == 0)
+        {
+            Debug.LogWarning("[Dialogue] No lines assigned!");
+            return;
+        }
 
-        currentIndex = startIndex;
+        StopAllCoroutines();
+        _currentIndex = 0;
+        _isOpen = true;
+        nameText.text = NPCName;
+        dialogueText.text = string.Empty;
+        dialogueBox.SetActive(true);
         StartCoroutine(TypeLine());
     }
 
-    IEnumerator TypeLine()
+    private void Advance()
     {
-        string line = lines[currentIndex];
-        dialogueText.text = string.Empty;
-
-        // Wait one frame to ensure UI updates (a missing character bug occurs without this)
-        yield return null;
-
-        for (int i = 0; i < line.Length; i++)
+        if (_isTyping)
         {
-            dialogueText.text += line[i];
-            yield return new WaitForSeconds(textSpeed);
+            StopAllCoroutines();
+            dialogueText.text = lines[_currentIndex];
+            _isTyping = false;
+        }
+        else
+        {
+            NextLine();
         }
     }
 
-    void NextLine()
+    private IEnumerator TypeLine()
     {
-        if (currentIndex < endIndex)
+        _isTyping = true;
+        dialogueText.text = string.Empty;
+        yield return null;
+
+        foreach (char c in lines[_currentIndex])
         {
-            currentIndex++;
+            dialogueText.text += c;
+            yield return new WaitForSeconds(textSpeed);
+        }
+
+        _isTyping = false;
+    }
+
+    private void NextLine()
+    {
+        // Last line index is lines.Length - 1
+        if (_currentIndex < lines.Length - 1)
+        {
+            _currentIndex++;
             dialogueText.text = string.Empty;
             StartCoroutine(TypeLine());
         }
         else
         {
-            dialogueBox.SetActive(false);
-
-            Debug.Log("dialogue end");
+            EndDialogue();
         }
     }
 
-    public void Click()
+    private void EndDialogue()
     {
-        // If line finished, go to next
-        if (dialogueText.text == lines[currentIndex])
-        {
-            NextLine();
-        }
-        // If still typing, instantly complete line
-        else
-        {
-            StopAllCoroutines();
-            dialogueText.text = lines[currentIndex];
-        }
+        _isOpen = false;
+        _isTyping = false;
+        dialogueBox.SetActive(false);
+        _dialogueTrigger?.OnDialogueEnd();
     }
 }

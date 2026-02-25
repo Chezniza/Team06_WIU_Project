@@ -3,7 +3,10 @@ using UnityEngine.Events;
 
 public class DialogueTrigger : MonoBehaviour
 {
-    private bool playerInRange = false;
+    [SerializeField] private InputHandler _inputHandler;
+
+    private bool _playerInRange = false;
+
     public UnityEvent dialogueTrigger;
     public UnityEvent onTriggerEnter;
     public UnityEvent onTriggerExit;
@@ -12,7 +15,7 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playerInRange = true;
+            _playerInRange = true;
             onTriggerEnter.Invoke();
         }
     }
@@ -21,16 +24,26 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playerInRange = false;
+            _playerInRange = false;
             onTriggerExit.Invoke();
+            OnDialogueEnd(); // unlock if player walks away mid-dialogue
         }
     }
 
     private void Update()
     {
-        if (playerInRange && Input.GetKeyDown(KeyCode.T))
+        if (_playerInRange && Input.GetKeyDown(KeyCode.T))
         {
+            _inputHandler?.LockControls();
+            DialogueManager.SetDialogueOpen(true);
             dialogueTrigger.Invoke();
         }
+    }
+
+    // Called by Dialogue.cs when dialogue finishes
+    public void OnDialogueEnd()
+    {
+        _inputHandler?.UnlockControls();
+        DialogueManager.SetDialogueOpen(false);
     }
 }

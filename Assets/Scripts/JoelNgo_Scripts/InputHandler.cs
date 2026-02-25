@@ -1,9 +1,7 @@
 using Unity.Cinemachine;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using static UnityEditor.SceneView;
 
 public class InputHandler : MonoBehaviour
 {
@@ -38,7 +36,25 @@ public class InputHandler : MonoBehaviour
     private enum CameraMode { ThirdPerson, FreeLook, FirstPerson }
     private CameraMode _currentCamera = CameraMode.ThirdPerson;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Any system can call LockControls / UnlockControls to freeze the player
+    private bool _controlsLocked = false;
+
+    public void LockControls()
+    {
+        _controlsLocked = true;
+
+        // Immediately stop any movement/actions in progress
+        _playerController.UpdateMoveInput(Vector2.zero);
+        _playerController.UpdateSprintInput(false);
+        _playerController.UpdateJumpInput(false);
+        _blockController.StopBlock();
+    }
+
+    public void UnlockControls()
+    {
+        _controlsLocked = false;
+    }
+
     void Start()
     {
         _inputActions = _playerInput.actions;
@@ -51,56 +67,60 @@ public class InputHandler : MonoBehaviour
         _blockAction = _inputActions["Block"];
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // Camera cycling always works (doesn't affect gameplay)
         CameraInput();
 
-        // Reset the scene
+        // Inventory toggle always works
+        // (InventoryUI handles its own toggle via PlayerInput directly)
+
+        // Scene reset always works
         if (Input.GetKeyDown(KeyCode.R))
-        {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+        if (_controlsLocked)
+        {
+            // Zero out movement so player doesn't slide
+            _playerController.UpdateMoveInput(Vector2.zero);
+            _playerController.UpdateSprintInput(false);
+            _playerController.UpdateJumpInput(false);
+            _blockController.StopBlock();
+            return;
         }
 
-        // Stop inputs when player is dead
         if (damageable.GetHealth() <= 0)
             return;
 
-        // Movement inputs
+        // Movement
         Vector2 moveInput = _moveAction.ReadValue<Vector2>();
         _playerController.UpdateMoveInput(moveInput);
 
-        // Sprint input
-        bool isSprinting = _sprintAction.IsPressed() ? true : false;
-        _playerController.UpdateSprintInput(isSprinting);
+        // Sprint
+        _playerController.UpdateSprintInput(_sprintAction.IsPressed());
 
-        // Jump input
-        bool isJumping = _jumpAction.WasPressedThisFrame() ? true : false;
-        _playerController.UpdateJumpInput(isJumping);
+        // Jump
+        _playerController.UpdateJumpInput(_jumpAction.WasPressedThisFrame());
 
-        // Attack input
+        // Attack
         AttackInputs();
 
-        // Block input
+        // Block
         if (_blockAction.IsPressed())
             _blockController.StartBlock();
         else
             _blockController.StopBlock();
 
-        // Change weapon
+        // Weapon cycle
         if (Input.GetKeyDown(KeyCode.V))
-        {
             _weaponController.CycleWeapon();
-        }
     }
 
     private void AttackInputs()
     {
-        // Light attack
         if (_lightAttack.IsPressed())
         {
             holdAttackTimer -= Time.deltaTime;
-
             if (holdAttackTimer <= 0f)
             {
                 _attackHandler.RequestLightAttack();
@@ -112,7 +132,6 @@ public class InputHandler : MonoBehaviour
             holdAttackTimer = 0f;
         }
 
-        // Heavy attack
         if (_heavyAttack.WasPressedThisFrame())
             _attackHandler.RequestHeavyAttack();
     }
@@ -136,24 +155,15 @@ public class InputHandler : MonoBehaviour
     {
         _currentCamera = mode;
 
-        // Disable all cameras first
         _virtualCamera.gameObject.SetActive(false);
         _freeLookCamera.gameObject.SetActive(false);
         _FPCamera.gameObject.SetActive(false);
 
         switch (mode)
         {
-            case CameraMode.ThirdPerson:
-                _virtualCamera.gameObject.SetActive(true);
-                break;
-
-            case CameraMode.FreeLook:
-                _freeLookCamera.gameObject.SetActive(true);
-                break;
-
-            case CameraMode.FirstPerson:
-                _FPCamera.gameObject.SetActive(true);
-                break;
+            case CameraMode.ThirdPerson: _virtualCamera.gameObject.SetActive(true); break;
+            case CameraMode.FreeLook: _freeLookCamera.gameObject.SetActive(true); break;
+            case CameraMode.FirstPerson: _FPCamera.gameObject.SetActive(true); break;
         }
     }
 }
