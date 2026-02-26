@@ -8586,12 +8586,7 @@ MonoBehaviour:
   gridWidth: 8
   gridHeight: 6
   startingItems:
-  - {fileID: 11400000, guid: 34a9ba6939d57634da107d8630b03d27, type: 2}
-  - {fileID: 11400000, guid: bd0c4cff1c9305b45a973589f8acc282, type: 2}
-  - {fileID: 11400000, guid: 45c8c614d7a91c04bbfc357163c5d271, type: 2}
-  - {fileID: 11400000, guid: bfa64822e05579846beee32225265a8e, type: 2}
-  - {fileID: 11400000, guid: f2fe928c28c8b6f43abd9f71d860064e, type: 2}
-  - {fileID: 11400000, guid: 87eed1df702a80e489ac7b65ff2317b1, type: 2}
+  - {fileID: 11400000, guid: 70891b0f359b6f849a629fca6b370fbf, type: 2}
 --- !u!1 &1531881671
 GameObject:
   m_ObjectHideFlags: 0
@@ -8941,6 +8936,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cfe3572778eff249a2121acc8d74c8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestHandler
+  _inventoryManager: {fileID: 1481967577}
 --- !u!1001 &1696718121
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9933,7 +9929,7 @@ MonoBehaviour:
         m_MethodName: AddQuest
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 11400000, guid: 465dc8db19696fa4896c5fe12c1068bb, type: 2}
+          m_ObjectArgument: {fileID: 11400000, guid: 9173e28cd027b76408e8357ef6e4f8b5, type: 2}
           m_ObjectArgumentAssemblyTypeName: QuestData, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -11265,6 +11261,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: WHEEL
       objectReference: {fileID: 0}
+    - target: {fileID: 5097221988118925373, guid: 5725a37217724ce4a9019e6a77c06249, type: 3}
+      propertyPath: _hotbar
+      value: 
+      objectReference: {fileID: 661034364}
+    - target: {fileID: 5097221988118925373, guid: 5725a37217724ce4a9019e6a77c06249, type: 3}
+      propertyPath: _staminaBar
+      value: 
+      objectReference: {fileID: 72809420}
     - target: {fileID: 5097221988118925373, guid: 5725a37217724ce4a9019e6a77c06249, type: 3}
       propertyPath: _inputHandler
       value: 

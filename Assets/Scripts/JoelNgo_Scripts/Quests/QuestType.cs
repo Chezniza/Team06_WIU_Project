@@ -1,12 +1,15 @@
 using UnityEngine;
 
-public enum QuestType
+public enum QuestType { Kill, Fetch }
+
+[System.Serializable]
+public class QuestItemReward
 {
-    Kill,
-    Fetch
+    public ItemData item;
+    public int quantity = 1;
 }
 
-[CreateAssetMenu(fileName = "QuestType", menuName = "Scriptable Objects/Quest Data")]
+[CreateAssetMenu(fileName = "QuestData", menuName = "Scriptable Objects/Quest Data")]
 public class QuestData : ScriptableObject
 {
     [Header("Quest Details")]
@@ -26,8 +29,11 @@ public class QuestData : ScriptableObject
 
     [Header("Reward")]
     public int rewardGold;
-    public int rewardXP;   // ADDED
+    public int rewardXP;
+
+    [Header("Item Rewards")]
+    public QuestItemReward[] itemRewards;
 
     [Header("UI")]
-    public Sprite icon;    // ADDED
+    public Sprite icon;
 }

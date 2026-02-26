@@ -2,13 +2,17 @@ using UnityEngine;
 
 public class FetchQuest : Quest
 {
-    private int collected;
+    private int _collected;
+    private QuestHandler _handler;
 
-    public FetchQuest(QuestData data) : base(data) { }
+    public FetchQuest(QuestData data, QuestHandler handler) : base(data)
+    {
+        _handler = handler;
+    }
 
     public override void Initialize()
     {
-        collected = 0;
+        _collected = 0;
         IsCompleted = false;
     }
 
@@ -17,26 +21,25 @@ public class FetchQuest : Quest
     public override void OnItemCollected(string itemID)
     {
         if (IsCompleted) return;
+        if (itemID != Data.itemName) return;
 
-        if (itemID == Data.itemName)
-        {
-            collected++;
+        _collected++;
+        Debug.Log($"[FetchQuest] {_collected}/{Data.requiredAmount} {Data.itemName}");
 
-            if (collected >= Data.requiredAmount)
-            {
-                CompleteQuest();
-            }
-        }
+        QuestLogUI.Instance?.Refresh();
+
+        if (_collected >= Data.requiredAmount)
+            CompleteQuest();
     }
 
-    public override int GetProgress()
-    {
-        return collected;
-    }
+    public override int GetProgress() => _collected;
+
+    public override string GetProgressText() =>
+        $"{_collected} / {Data.requiredAmount} {Data.itemName}s collected";
 
     private void CompleteQuest()
     {
         IsCompleted = true;
-        Debug.Log("Fetch Quest Completed!");
+        _handler?.OnQuestCompleted(this);
     }
 }
