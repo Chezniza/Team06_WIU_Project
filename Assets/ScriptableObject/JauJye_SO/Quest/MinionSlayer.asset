@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: 0
   title: Minion Slayer
-  description: Kill minions of the evil boss!
+  description: Kill enemy Minions
   questType: 0
   requiredAmount: 1
-  targetName: Minion
+  targetName: 
   itemName: 
   rewardGold: 10
-  rewardXP: 0
+  rewardXP: 10
   itemRewards:
   - item: {fileID: 11400000, guid: 0661207734a84d84cbd95a538aac4787, type: 2}
     quantity: 1
-  icon: {fileID: 0}
+  icon: {fileID: 6905562749588875414, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
