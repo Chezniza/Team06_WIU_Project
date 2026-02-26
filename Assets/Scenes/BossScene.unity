@@ -2564,7 +2564,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
   m_MinWidth: 550
-  m_MinHeight: 30
+  m_MinHeight: 0
   m_PreferredWidth: -1
   m_PreferredHeight: -1
   m_FlexibleWidth: 1
@@ -2584,13 +2584,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
   m_Padding:
     m_Left: 0
-    m_Right: 30
+    m_Right: 0
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 7
   m_StartCorner: 0
   m_StartAxis: 1
-  m_CellSize: {x: 550, y: 30}
+  m_CellSize: {x: 550, y: 100}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 1
@@ -5522,7 +5522,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 693052677}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -10660,7 +10660,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1631551145}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -11889,6 +11889,21 @@ MonoBehaviour:
   - can you kill some minions
   textSpeed: 0.05
   _dialogueTrigger: {fileID: 1126001275}
+  dialogueEnd:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1978774725}
+        m_TargetAssemblyTypeName: QuestHandler, Assembly-CSharp
+        m_MethodName: AddQuest
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 11400000, guid: 465dc8db19696fa4896c5fe12c1068bb, type: 2}
+          m_ObjectArgumentAssemblyTypeName: QuestData, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &1764406711 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d193266f359c4ee4b8ef0a516c5345ac, type: 3}
@@ -12397,7 +12412,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.8}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12728,6 +12743,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1978774723}
   - component: {fileID: 1978774724}
+  - component: {fileID: 1978774725}
   m_Layer: 5
   m_Name: QuestUI
   m_TagString: Untagged
@@ -12752,7 +12768,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 337, y: -100}
+  m_AnchoredPosition: {x: 337, y: -30}
   m_SizeDelta: {x: 578.9042, y: 533.2109}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1978774724
@@ -12767,8 +12783,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 021224dea2fb6f44aae5bb1109ffbd55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestUI
-  questPrefab: {fileID: 0}
-  chatContent: {fileID: 0}
+  questPrefab: {fileID: 1309018631762323259, guid: 6c72e3a91565d124b96ce25f78cf624b, type: 3}
+  questContent: {fileID: 458225246}
+--- !u!114 &1978774725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978774722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cfe3572778eff249a2121acc8d74c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestHandler
+  questUI: {fileID: 1978774724}
 --- !u!1 &2004525226
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,8 +4,9 @@ using System.Collections.Generic;
 public class QuestHandler : MonoBehaviour
 {
     private List<Quest> activeQuests = new();
+    [SerializeField] private QuestUIHandler questUI;
 
-    public Quest CreateQuest(QuestData data)
+    private Quest CreateQuest(QuestData data)
     {
         Quest quest = null;
 
@@ -31,6 +32,8 @@ public class QuestHandler : MonoBehaviour
         if (quest != null)
         {
             activeQuests.Add(quest);
+
+            questUI.AddQuestUI(quest);
             Debug.Log("Quest Added: " + data.title);
         }
     }

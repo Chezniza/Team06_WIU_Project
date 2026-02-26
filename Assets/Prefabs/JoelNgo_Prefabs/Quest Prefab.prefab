@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5009792010162774776}
   - component: {fileID: 772240281866749027}
-  - component: {fileID: 1603579572030287693}
+  - component: {fileID: 6995311620538662916}
   m_Layer: 5
-  m_Name: Chat Message
+  m_Name: Quest Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,7 +46,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1309018631762323259}
   m_CullTransparentMesh: 1
---- !u!114 &1603579572030287693
+--- !u!114 &6995311620538662916
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -55,10 +55,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1309018631762323259}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a08c790a42586443ae55ef6721faf89, type: 3}
+  m_Script: {fileID: 11500000, guid: bc3098d54a32b9a4a9d7c14074b172df, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ChatMessage
-  messageText: {fileID: 9006051669506405152}
+  m_EditorClassIdentifier: Assembly-CSharp::QuestUI
+  questText: {fileID: 9006051669506405152}
 --- !u!1 &5878010907021835467
 GameObject:
   m_ObjectHideFlags: 0
@@ -71,7 +71,7 @@ GameObject:
   - component: {fileID: 6658907112313590238}
   - component: {fileID: 9006051669506405152}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: TitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124,9 +124,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Name: Text
-
-'
+  m_text: Quest Name Quest Detail 0 / 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -153,14 +151,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
+  m_fontSize: 40
   m_fontSizeBase: 20
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 40
   m_fontStyle: 1
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0

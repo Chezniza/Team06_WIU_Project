@@ -15,14 +15,15 @@ public class QuestData : ScriptableObject
     public string description;
     public QuestType questType;
 
+    [Header("Shared Data")]
+    public int requiredAmount;
+
     [Header("Kill Quest")]
     public string targetName;
-    public int requiredAmount;
 
     [Header("Fetch Quest")]
     public string itemName;
 
     [Header("Reward")]
     public int rewardGold;
-    public int rewardXP;
 }

@@ -1,12 +1,30 @@
+using TMPro;
 using UnityEngine;
 
 public class QuestUI : MonoBehaviour
 {
-    [SerializeField] private GameObject questPrefab;
-    [SerializeField] private GameObject chatContent;
+    [SerializeField] TextMeshProUGUI questText;
 
-    void AddQuestUI()
+    public void UpdateText(Quest quest)
     {
-        Instantiate(questPrefab, chatContent.transform);
+        QuestData data = quest.Data;
+
+        // Add title
+        questText.text = data.title;
+
+        // Add quest type
+        switch (data.questType)
+        {
+            case QuestType.Kill:
+                questText.text += " Kill " + data.targetName;
+                break;
+
+            case QuestType.Fetch:
+                questText.text += " Fetch " + data.targetName;
+                break;
+        }
+
+        // Add quest progress
+        questText.text += " " + quest.GetProgress() + " / " + data.requiredAmount;
     }
 }
