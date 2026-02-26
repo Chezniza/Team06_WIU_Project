@@ -13650,6 +13650,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1497431484}
     - target: {fileID: 6514633786582336684, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      propertyPath: _healthText
+      value: 
+      objectReference: {fileID: 1120054700}
+    - target: {fileID: 6514633786582336684, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.size
       value: 0
       objectReference: {fileID: 0}
