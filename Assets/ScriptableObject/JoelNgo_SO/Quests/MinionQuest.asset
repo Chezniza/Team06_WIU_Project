@@ -16,8 +16,7 @@ MonoBehaviour:
   title: Minion Slayer
   description: Kill Minions
   questType: 0
-  targetName: Minions
   requiredAmount: 1
+  targetName: Minion
   itemName: 
   rewardGold: 10
-  rewardXP: 10

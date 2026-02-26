@@ -1,17 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-// ============================================================
-//  RespawnAltar.cs
-//  Place this on your altar GameObject.
-//  Watches for player death and respawns them on top of altar.
-//
-//  SETUP:
-//    1. Add this component to your altar GameObject
-//    2. Player auto-found via "Player" tag, or assign manually
-//    3. Place the altar where you want the player to respawn
-//    4. Adjust Spawn Height Offset so player appears above altar surface
-// ============================================================
 
 public class RespawnAltar : MonoBehaviour
 {
@@ -27,12 +16,8 @@ public class RespawnAltar : MonoBehaviour
     [Header("Optional VFX")]
     [SerializeField] private GameObject respawnVFXPrefab;
 
-    // ── State ─────────────────────────────────────────────
     private bool isRespawning = false;
 
-    // ─────────────────────────────────────────────
-    // INIT
-    // ─────────────────────────────────────────────
 
     private void Start()
     {
@@ -50,11 +35,10 @@ public class RespawnAltar : MonoBehaviour
 
         if (playerController == null)
             playerController = playerObject.GetComponent<PlayerController>();
+
+
     }
 
-    // ─────────────────────────────────────────────
-    // WATCH FOR DEATH
-    // ─────────────────────────────────────────────
 
     private void Update()
     {
@@ -68,10 +52,7 @@ public class RespawnAltar : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────
-    // RESPAWN SEQUENCE
-    // ─────────────────────────────────────────────
-
+    
     private IEnumerator RespawnSequence()
     {
         Debug.Log($"[RespawnAltar] Player died — respawning in {respawnDelay}s...");
@@ -96,6 +77,7 @@ public class RespawnAltar : MonoBehaviour
         if (playerDamageable != null)
             playerDamageable.ResetHealth();
 
+
         // Spawn VFX at respawn point if assigned
         if (respawnVFXPrefab != null)
             Instantiate(respawnVFXPrefab, respawnPos, Quaternion.identity);
@@ -105,10 +87,7 @@ public class RespawnAltar : MonoBehaviour
         isRespawning = false;
     }
 
-    // ─────────────────────────────────────────────
-    // GIZMOS — yellow sphere marks the respawn point
-    // ─────────────────────────────────────────────
-
+   
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;

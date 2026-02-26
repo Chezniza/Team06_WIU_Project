@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Damageable : MonoBehaviour
 {
@@ -14,7 +15,9 @@ public class Damageable : MonoBehaviour
     [SerializeField] private Animator _animator;
     // Health bar
     [SerializeField] private Healthbar _healthbar;
+    [SerializeField] private HealthUI _healthUI;
 
+    public UnityEvent deathEvent;
     private IEnumerator DamageEffect()
     {
         // Set all renderers to damage color instantly
@@ -51,7 +54,7 @@ public class Damageable : MonoBehaviour
     {
         health = stats.Health;
         if (_healthbar != null) _healthbar.updateHealthBar(health, health);
-
+        if(_healthUI) _healthUI.OnHealthChanged(health);
         // Get all Renderer components in this object and children
         renderers = GetComponentsInChildren<Renderer>();
 
@@ -77,11 +80,21 @@ public class Damageable : MonoBehaviour
         health = Mathf.Max(health, 0);
         _healthbar.updateHealthBar(stats.Health, health);
 
+       
+        
+        if (_healthUI)
+        {
+
+            _healthUI.OnHealthChanged(health);
+
+        }
+
         StartCoroutine(DamageEffect());
 
         if (health <= 0)
         {
             _animator.SetTrigger("Die");
+            deathEvent.Invoke();
         }
     }
   
@@ -96,7 +109,14 @@ public class Damageable : MonoBehaviour
     // Called by RespawnAltar to restore full HP on respawn
     public void ResetHealth()
     {
+        
         health = stats.Health;
         if (_healthbar != null) _healthbar.updateHealthBar(health, health);
+        if (_healthUI)
+        {
+
+            _healthUI.OnHealthChanged(health);
+
+        }
     }
 }

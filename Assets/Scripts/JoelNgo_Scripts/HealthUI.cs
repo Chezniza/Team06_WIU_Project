@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BossHealthUI : MonoBehaviour
+public class HealthUI : MonoBehaviour
 {
     public Damageable healthReference; 
 
@@ -14,10 +14,10 @@ public class BossHealthUI : MonoBehaviour
         maxHealth = healthReference.GetMaxHealth();
         currHealth = healthReference.GetHealth();
 
-        OnHealthChanged(0, currHealth);
+        OnHealthChanged(currHealth);
     }
 
-    private void OnHealthChanged(int previous, int current)
+    public void OnHealthChanged(int current)
     {
         float percent = (float)current / maxHealth;
         fillImage.fillAmount = percent;
