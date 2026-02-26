@@ -22,5 +22,4 @@ MonoBehaviour:
   heavyMultiplier: 2
   modelPrefab: {fileID: 6126623979875722744, guid: 33c776c98022349439ef94b4990ca165, type: 3}
   isRanged: 1
-  projectilePrefab: {fileID: 919132149155446097, guid: fd54f9b010e26ff479b21355626b0540, type: 3}
-  fireCooldown: 0.5
+  projectilePrefab: {fileID: 4699481031474668086, guid: ed6f9c7beba8439478418df6552c41f0, type: 3}
