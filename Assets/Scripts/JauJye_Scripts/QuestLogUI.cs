@@ -189,7 +189,6 @@ public class QuestLogUI : MonoBehaviour
         if (_detailReward)
             _detailReward.text = $"{quest.Data.rewardGold}  Gold      {quest.Data.rewardXP}  XP";
 
-        Refresh();
     }
 
     private void ShowEmptyDetail()
