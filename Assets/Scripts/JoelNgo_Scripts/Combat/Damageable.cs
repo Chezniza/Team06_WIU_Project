@@ -50,7 +50,7 @@ public class Damageable : MonoBehaviour
     private void Start()
     {
         health = stats.Health;
-        _healthbar.updateHealthBar(health, health);
+        if (_healthbar != null) _healthbar.updateHealthBar(health, health);
 
         // Get all Renderer components in this object and children
         renderers = GetComponentsInChildren<Renderer>();
@@ -92,4 +92,11 @@ public class Damageable : MonoBehaviour
 
     public int GetHealth() { return health; }
     public int GetMaxHealth() { return stats.Health; }
+
+    // Called by RespawnAltar to restore full HP on respawn
+    public void ResetHealth()
+    {
+        health = stats.Health;
+        if (_healthbar != null) _healthbar.updateHealthBar(health, health);
+    }
 }
