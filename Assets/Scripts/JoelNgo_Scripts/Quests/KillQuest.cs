@@ -29,6 +29,11 @@ public class KillQuest : Quest
 
     public override void OnItemCollected(string itemID) { }
 
+    public override int GetProgress()
+    {
+        return currentKills;
+    }
+
     private void CompleteQuest()
     {
         IsCompleted = true;
