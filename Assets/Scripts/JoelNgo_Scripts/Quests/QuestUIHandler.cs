@@ -26,11 +26,5 @@ public class QuestUIHandler : MonoBehaviour
         }
     }
 
-    public void UpdateQuests()
-    {
-        foreach (var quest in activeQuests)
-        {
-            quest.UpdateText(quest.GetQuest());
-        }
-    }
+  
 }
