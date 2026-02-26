@@ -26,7 +26,7 @@ public class DialogueTrigger : MonoBehaviour
         {
             _playerInRange = false;
             onTriggerExit.Invoke();
-            OnDialogueEnd(); // unlock if player walks away mid-dialogue
+            OnDialogueEnd();
         }
     }
 
@@ -40,7 +40,6 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
-    // Called by Dialogue.cs when dialogue finishes
     public void OnDialogueEnd()
     {
         _inputHandler?.UnlockControls();
