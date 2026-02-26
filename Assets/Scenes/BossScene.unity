@@ -6747,9 +6747,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '
-
-'
+  m_text: 0 / 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -10021,6 +10019,10 @@ PrefabInstance:
       propertyPath: _healthUI
       value: 
       objectReference: {fileID: 1497431484}
+    - target: {fileID: 6514633786582336684, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
+      propertyPath: _healthText
+      value: 
+      objectReference: {fileID: 1120054700}
     - target: {fileID: 6514633786582336684, guid: 004a7673b5397994aa01fca810b51c4d, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.size
       value: 0
