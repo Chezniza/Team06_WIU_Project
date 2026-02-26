@@ -84,13 +84,13 @@ public class QuestHandler : MonoBehaviour
 
     public void NotifyEnemyKilled(string enemyID)
     {
-        foreach (var quest in activeQuests)
+        foreach (var quest in new List<Quest>(activeQuests))
             quest.OnEnemyKilled(enemyID);
     }
 
     public void NotifyItemCollected(string itemID)
     {
-        foreach (var quest in activeQuests)
+        foreach (var quest in new List<Quest>(activeQuests))
             quest.OnItemCollected(itemID);
     }
 }
