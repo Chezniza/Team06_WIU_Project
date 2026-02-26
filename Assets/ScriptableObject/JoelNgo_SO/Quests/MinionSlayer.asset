@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49565972d3dc00847b7c8c9af1a0b7a3, type: 3}
-  m_Name: MinionQuest
+  m_Script: {fileID: 0}
+  m_Name: MinionSlayer
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: 0
   title: Minion Slayer
-  description: Kill Minions
+  description: Kill minions of the evil boss!
   questType: 0
   requiredAmount: 1
   targetName: Minion

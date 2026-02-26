@@ -29,8 +29,10 @@ public class ShortcutWheel : MonoBehaviour
     {
         if (Input.GetKeyDown(_wheelKey))
         {
+            // If a panel is already open, close it instead of opening wheel
+            if (TryCloseOpenPanel()) return;
+
             OpenWheel();
-            Debug.Log("Wheel Open");
         }
 
         if (Input.GetKeyUp(_wheelKey))
@@ -38,7 +40,6 @@ public class ShortcutWheel : MonoBehaviour
 
         if (!_isOpen) return;
 
-        // Calculate selected segment from mouse direction
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Vector2 delta = mousePos - _wheelCenter;
 
@@ -57,6 +58,24 @@ public class ShortcutWheel : MonoBehaviour
         _wheelUI.UpdateSelection(_selectedIndex);
     }
 
+    // Returns true if a panel was open and got closed
+    private bool TryCloseOpenPanel()
+    {
+        if (InventoryUI.Instance != null && InventoryUI.Instance.IsInventoryOpen())
+        {
+            InventoryUI.Instance.ToggleInventory();
+            return true;
+        }
+
+        if (QuestLogUI.Instance != null && QuestLogUI.Instance.IsOpen())
+        {
+            QuestLogUI.Instance.Hide();
+            return true;
+        }
+
+        return false;
+    }
+
     private void OpenWheel()
     {
         if (_isOpen) return;
@@ -64,7 +83,6 @@ public class ShortcutWheel : MonoBehaviour
         _selectedIndex = -1;
 
         _inputHandler?.LockControls();
-
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -80,12 +98,14 @@ public class ShortcutWheel : MonoBehaviour
         if (_selectedIndex >= 0 && _selectedIndex < items.Length)
             items[_selectedIndex].onSelect?.Invoke();
 
-        // Only restore cursor/controls if inventory didn't just open
         if (InventoryUI.Instance == null || !InventoryUI.Instance.IsInventoryOpen())
         {
-            _inputHandler?.UnlockControls();
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            if (QuestLogUI.Instance == null || !QuestLogUI.Instance.IsOpen())
+            {
+                _inputHandler?.UnlockControls();
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
 
         _wheelUI.Hide();

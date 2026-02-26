@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df78de5d92cd92446affcd577564e097, type: 3}
-  m_Name: TestBoots
+  m_Name: BeginnerBoots
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemName: Test Boots
-  description: test test test
-  icon: {fileID: -7006899675943808146, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
-  itemType: 4
+  itemName: Leather Boots
+  description: Leather Boots made from the hide of gear cows
+  icon: {fileID: 8996665824694350818, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
+  itemType: 0
   rarity: 0
   shape: 0101
   shapeWidth: 1
