@@ -95,7 +95,8 @@ public class BossAI : EnemyBase
     private SummonMinionAttack summonAttack;
     private SlamAttack         slamAttack;
 
-    private BossContext ctx;
+    private BossContext  ctx;
+    private BossPatrol   patrol;
 
     // ─────────────────────────────────────────────
     // INIT
@@ -104,6 +105,7 @@ public class BossAI : EnemyBase
     private void Start()
     {
         SetupAttacks();
+        patrol = GetComponent<BossPatrol>();
     }
 
     private void SetupAttacks()
@@ -240,6 +242,15 @@ public class BossAI : EnemyBase
             animator.SetBool("IsWalking", false);
             RotateTowards(player.position - transform.position);
             PillarPhaseShoot();
+            ApplyGravity();
+            return;
+        }
+
+        // If player outside detection range, patrol instead of standing idle
+        float distToPlayer = Vector3.Distance(transform.position, player.position);
+        if (distToPlayer > detectionRange && patrol != null && patrol.HasWaypoints)
+        {
+            patrol.Patrol(controller, animator, moveSpeed, rotateSpeed);
             ApplyGravity();
             return;
         }

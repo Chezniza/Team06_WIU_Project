@@ -374,6 +374,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 73199088}
   m_CullTransparentMesh: 1
+--- !u!1 &89471128
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 89471129}
+  m_Layer: 0
+  m_Name: waypoint2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &89471129
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89471128}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.46, y: 0, z: -24.07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 947140867}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &130660170
 GameObject:
   m_ObjectHideFlags: 0
@@ -1306,6 +1337,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aa659db426571442baa5d1b5d89e53e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ComboController
+--- !u!114 &167049073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167049056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a1093164797446469ef08b3bab3359e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossPatrol
+  waypoints:
+  - {fileID: 1343201181}
+  - {fileID: 89471129}
+  - {fileID: 1019453972}
+  - {fileID: 89471129}
+  waypointReachDistance: 0.5
+  waitAtWaypoint: 1
+  loopPatrol: 1
 --- !u!1 &170286095
 GameObject:
   m_ObjectHideFlags: 0
@@ -4020,6 +4071,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
       insertIndex: -1
       addedObject: {fileID: 167049069}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 167049073}
   m_SourcePrefab: {fileID: 100100000, guid: 66d977f5ee3ba604c90b58bc37a0b774, type: 3}
 --- !u!1 &488935430
 GameObject:
@@ -6791,6 +6845,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68ed5375db4f6a2469eed031f050ce60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
+--- !u!1 &947140866
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 947140867}
+  m_Layer: 0
+  m_Name: Waypoints
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &947140867
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947140866}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.41833, y: 4.73751, z: 56.94695}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1343201181}
+  - {fileID: 89471129}
+  - {fileID: 1019453972}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &958391214
 GameObject:
   m_ObjectHideFlags: 0
@@ -7476,6 +7564,52 @@ MonoBehaviour:
   _hoverTooltipRT: {fileID: 217493990}
   _hoverOffset: {x: 12, y: -12}
   _playerInput: {fileID: 934174955}
+--- !u!1 &1019453971
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1019453972}
+  - component: {fileID: 1019453973}
+  m_Layer: 0
+  m_Name: waypoint3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1019453972
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019453971}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 32.5, y: 0, z: -13}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 947140867}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!182 &1019453973
+WindZone:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019453971}
+  m_Enabled: 1
+  m_Mode: 0
+  m_Radius: 20
+  m_WindMain: 1
+  m_WindTurbulence: 1
+  m_WindPulseMagnitude: 0.5
+  m_WindPulseFrequency: 0.01
 --- !u!1 &1027729885
 GameObject:
   m_ObjectHideFlags: 0
@@ -9082,6 +9216,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1327439748}
   m_CullTransparentMesh: 1
+--- !u!1 &1343201180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1343201181}
+  m_Layer: 0
+  m_Name: waypoint1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1343201181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1343201180}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -22.9, y: 0, z: -8.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 947140867}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1347494861
 GameObject:
   m_ObjectHideFlags: 0
@@ -12837,3 +13002,5 @@ SceneRoots:
   - {fileID: 1481967576}
   - {fileID: 1281665687}
   - {fileID: 1868793867}
+  - {fileID: 678350715}
+  - {fileID: 947140867}
