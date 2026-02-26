@@ -15,6 +15,9 @@ public class InventoryManager : MonoBehaviour
     [Header("Starting Items")]
     [SerializeField] private ItemData[] startingItems;
 
+    [Header("References")]
+    [SerializeField] private Damageable _playerDamageable; // drag player here
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -49,17 +52,14 @@ public class InventoryManager : MonoBehaviour
     public void QuickEquip(InventoryItem item)
     {
         Grid.Remove(item);
-
         switch (item.data.itemType)
         {
             case ItemType.Weapon:
                 QuickEquipWeapon(item);
                 break;
-
             case ItemType.Potion:
                 QuickEquipPotion(item);
                 break;
-
             case ItemType.Helmet:
             case ItemType.Chestplate:
             case ItemType.Pants:
@@ -67,13 +67,10 @@ public class InventoryManager : MonoBehaviour
             case ItemType.Gauntlets:
                 QuickEquipArmour(item);
                 break;
-
             case ItemType.Quest:
-                // Quest items cannot be equipped - return to grid
                 ReturnToGrid(item);
                 break;
         }
-
         InventoryUI.Instance?.RefreshAll();
         HotbarUI.Instance?.Refresh();
     }
@@ -93,7 +90,18 @@ public class InventoryManager : MonoBehaviour
     private void QuickEquipArmour(InventoryItem item)
     {
         InventoryItem displaced = Equipment.Equip(item);
-        if (displaced != null) ReturnToGrid(displaced);
+
+        // Add new armour's health bonus
+        if (_playerDamageable != null)
+            _playerDamageable.AddBonusHealth(item.data.statValue);
+
+        // Remove displaced armour's health bonus if something was replaced
+        if (displaced != null)
+        {
+            if (_playerDamageable != null)
+                _playerDamageable.RemoveBonusHealth(displaced.data.statValue);
+            ReturnToGrid(displaced);
+        }
     }
 
     // ?? Manual drag equip ?????????????????????????????????????????????
@@ -101,14 +109,34 @@ public class InventoryManager : MonoBehaviour
     {
         Grid.Remove(item);
         InventoryItem displaced = Equipment.Equip(item);
-        if (displaced != null) ReturnToGrid(displaced);
+
+        // Add new armour's health bonus
+        if (_playerDamageable != null)
+            _playerDamageable.AddBonusHealth(item.data.statValue);
+
+        // Remove displaced armour's health bonus if something was replaced
+        if (displaced != null)
+        {
+            if (_playerDamageable != null)
+                _playerDamageable.RemoveBonusHealth(displaced.data.statValue);
+            ReturnToGrid(displaced);
+        }
+
         InventoryUI.Instance?.RefreshAll();
     }
 
     public void UnequipArmourToGrid(ItemType type)
     {
         InventoryItem item = Equipment.Unequip(type);
-        if (item != null) ReturnToGrid(item);
+
+        // Remove unequipped armour's health bonus
+        if (item != null)
+        {
+            if (_playerDamageable != null)
+                _playerDamageable.RemoveBonusHealth(item.data.statValue);
+            ReturnToGrid(item);
+        }
+
         InventoryUI.Instance?.RefreshAll();
     }
 

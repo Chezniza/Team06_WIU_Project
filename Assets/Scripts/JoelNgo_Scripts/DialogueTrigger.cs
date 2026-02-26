@@ -5,9 +5,6 @@ public class DialogueTrigger : MonoBehaviour
 {
     [SerializeField] private InputHandler _inputHandler;
 
-    // Optional — only assign if this NPC gives a quest after dialogue
-    [SerializeField] private QuestGiver _questGiver;
-
     private bool _playerInRange = false;
 
     public UnityEvent dialogueTrigger;
@@ -47,8 +44,5 @@ public class DialogueTrigger : MonoBehaviour
     {
         _inputHandler?.UnlockControls();
         DialogueManager.SetDialogueOpen(false);
-
-        // If this NPC has a quest to give, offer it after dialogue ends
-        _questGiver?.OfferQuest();
     }
 }

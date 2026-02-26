@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: MinionSlayer
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questID: 0
+  title: Minion Slayer
+  description: Kill enemy Minions
+  questType: 0
+  requiredAmount: 1
+  targetName: Minion
+  itemName: 
+  rewardGold: 10
+  rewardXP: 10
+  itemRewards:
+  - item: {fileID: 11400000, guid: 0661207734a84d84cbd95a538aac4787, type: 2}
+    quantity: 1
+  - item: {fileID: 11400000, guid: 0661207734a84d84cbd95a538aac4787, type: 2}
+    quantity: 1
+  icon: {fileID: 6905562749588875414, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}

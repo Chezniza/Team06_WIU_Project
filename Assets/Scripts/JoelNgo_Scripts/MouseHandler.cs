@@ -13,8 +13,9 @@ public class MouseHandler : MonoBehaviour
         bool dialogueOpen = DialogueManager.IsDialogueOpen();
         bool wheelOpen = ShortcutWheel.Instance != null && ShortcutWheel.Instance.IsOpen();
         bool questLogOpen = QuestLogUI.Instance != null && QuestLogUI.Instance.IsOpen();
+        bool deathOpen = DeathScreenUI.Instance != null && DeathScreenUI.Instance.IsOpen();
 
-        if (inventoryOpen || dialogueOpen || wheelOpen || questLogOpen)
+        if (inventoryOpen || dialogueOpen || wheelOpen || questLogOpen || deathOpen)
             UnlockCursor();
         else
             LockCursor();
