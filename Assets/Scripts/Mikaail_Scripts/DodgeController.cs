@@ -14,7 +14,7 @@ public class DodgeController : MonoBehaviour
     [SerializeField] private float dodgeDistance = 4f;
     [SerializeField] private float minDodgeDistance = 2f;
     [SerializeField] private float dodgeDuration = 0.2f;
-    [SerializeField] private float staminaCost = 20f;
+    [SerializeField] private float staminaCost = 35f;
     [SerializeField] private float dodgeCooldown = 0.6f;
 
     [Header("Effects")]
