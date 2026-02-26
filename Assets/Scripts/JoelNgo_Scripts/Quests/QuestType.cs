@@ -12,7 +12,7 @@ public class QuestData : ScriptableObject
     [Header("Quest Details")]
     public int questID;
     public string title;
-    public string description;
+    [TextArea] public string description;
     public QuestType questType;
 
     [Header("Shared Data")]
@@ -26,4 +26,8 @@ public class QuestData : ScriptableObject
 
     [Header("Reward")]
     public int rewardGold;
+    public int rewardXP;   // ADDED
+
+    [Header("UI")]
+    public Sprite icon;    // ADDED
 }

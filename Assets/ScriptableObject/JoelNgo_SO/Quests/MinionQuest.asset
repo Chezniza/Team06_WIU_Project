@@ -14,10 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: 0
   title: Minion Slayer
-  description: Kill Minions
+  description: Kill 1 of the evil robots minions
   questType: 0
-  targetName: Minions
   requiredAmount: 1
+  targetName: Minions
   itemName: 
   rewardGold: 10
   rewardXP: 10
+  icon: {fileID: 6905562749588875414, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
