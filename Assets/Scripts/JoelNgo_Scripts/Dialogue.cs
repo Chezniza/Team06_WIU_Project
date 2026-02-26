@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Events;
 
 public class Dialogue : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class Dialogue : MonoBehaviour
 
     // Drag the DialogueTrigger on the same NPC into this field
     [SerializeField] private DialogueTrigger _dialogueTrigger;
+
+    // Events
+    public UnityEvent dialogueEnd;
 
     private int startIndex;
     private int endIndex;
@@ -69,6 +73,7 @@ public class Dialogue : MonoBehaviour
             // Dialogue finished — close box and unlock player
             dialogueBox.SetActive(false);
             _dialogueTrigger?.OnDialogueEnd();
+            dialogueEnd.Invoke();
         }
     }
 

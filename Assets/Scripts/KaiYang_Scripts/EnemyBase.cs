@@ -1,11 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-// ============================================================
-//  EnemyBase.cs
-//  Abstract base shared by MinionAI and BossAI.
-//  Handles: references, movement, blocking, gravity, gizmos.
-// ============================================================
+
 
 public abstract class EnemyBase : MonoBehaviour
 {
@@ -42,9 +38,22 @@ public abstract class EnemyBase : MonoBehaviour
     // ── Coroutine lock — prevents overlapping actions ──────
     protected bool isActing = false;
 
+    // ── Invincibility flag — set by subclasses (e.g. boss pillar phase) ──
+    protected bool isInvincible = false;
+
     // ─────────────────────────────────────────────
     // UNITY LIFECYCLE  (subclasses call base.Update or override fully)
     // ─────────────────────────────────────────────
+
+    protected virtual void Awake()
+    {
+        // Auto-find player if not assigned in Inspector
+        if (player == null)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p.transform;
+        }
+    }
 
     protected virtual void Update()
     {
@@ -115,6 +124,9 @@ public abstract class EnemyBase : MonoBehaviour
         blockTimer = Random.Range(blockDurationRange.x, blockDurationRange.y);
         attackHandler.StartBlock();
     }
+
+    public bool IsInvincible() => isInvincible;
+    public void SetInvincible(bool value) => isInvincible = value;
 
     public void BreakBlockAndStagger()
     {

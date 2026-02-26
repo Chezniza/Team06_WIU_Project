@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 49565972d3dc00847b7c8c9af1a0b7a3, type: 3}
-  m_Name: KnightQuest
+  m_Name: MinionQuest
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: 0
-  title: Knight Slayer
-  description: Kill Knight
+  title: Minion Slayer
+  description: Kill Minions
   questType: 0
-  targetID: 0
   requiredAmount: 1
-  itemID: 0
-  rewardGold: 0
-  rewardXP: 0
+  targetName: Minion
+  itemName: 
+  rewardGold: 10

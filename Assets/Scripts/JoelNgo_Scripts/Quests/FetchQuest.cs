@@ -29,6 +29,11 @@ public class FetchQuest : Quest
         }
     }
 
+    public override int GetProgress()
+    {
+        return collected;
+    }
+
     private void CompleteQuest()
     {
         IsCompleted = true;

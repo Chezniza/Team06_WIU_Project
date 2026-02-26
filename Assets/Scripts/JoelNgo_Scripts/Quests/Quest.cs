@@ -13,4 +13,6 @@ public abstract class Quest
     public abstract void Initialize();
     public abstract void OnEnemyKilled(string enemyID);
     public abstract void OnItemCollected(string itemID);
+
+    public abstract int GetProgress();
 }
