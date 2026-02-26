@@ -11,12 +11,6 @@ public class PlayerController : MonoBehaviour
     private ComboController _comboController;
     private BlockController _blockController;
 
-    // Dodge controler (mik)
-    [SerializeField] private DodgeController dodgeController;
-
-    // Grapple Controller (Mik)
-    [SerializeField] private GrappleController grappleController;
-
     /*
     * Stamina system reference
     * M 20 Feb
@@ -63,22 +57,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-
-        if (grappleController != null && grappleController.IsGrappling)
-        {
-            jumpVelocity = Vector3.zero;   // stop gravity buildup
-            return;
-        }
-
-
-        if (dodgeController != null && dodgeController.IsDodging)
-        {
-            // Allow gravity but stop movement input
-            jumpVelocity.y += gravity * Time.deltaTime;
-            _characterController.Move(new Vector3(0, jumpVelocity.y, 0) * Time.deltaTime);
-            return;
-        }
-
         Walk();
         Sprint();
         if (_characterController.isGrounded && jumpVelocity.y < 0)
@@ -100,6 +78,7 @@ public class PlayerController : MonoBehaviour
             moveDirection.x = 0;
             moveDirection.z = 0;
         }
+        _characterController.Move(moveDirection * Time.deltaTime);
 
         // Check if the character is sprinting - M 20 Feb
         if (!staminaSystem.IsInRecovery() && isSprinting && moveInput.sqrMagnitude > 0.1f)
@@ -146,7 +125,6 @@ public class PlayerController : MonoBehaviour
         else
             _animator.SetBool("IsRun", false);
     }
-
     private void Walk()
     {
         bool isMoving = moveInput.sqrMagnitude > 0.01f;

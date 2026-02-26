@@ -14,7 +14,6 @@ public class MoverSystem : MonoBehaviour
         {
             time += Time.deltaTime;
             float t = time / duration;
-            t = Mathf.SmoothStep(0f, 1f, t);
 
             Vector3 newPos = Vector3.Lerp(start, target, t);
             Vector3 move = newPos - transform.position;

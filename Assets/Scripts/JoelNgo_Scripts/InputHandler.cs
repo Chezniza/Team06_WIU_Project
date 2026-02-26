@@ -28,15 +28,6 @@ public class InputHandler : MonoBehaviour
     private InputAction _heavyAttack;
     private InputAction _blockAction;
 
-    // Dodge controller (Mik)
-    [SerializeField] private DodgeController dodgeController;
-
-    private float doubleTapTime = 0.35f;
-    private float lastTapForward;
-    private float lastTapBack;
-    private float lastTapLeft;
-    private float lastTapRight;
-
     // Attack repeat delay
     private float holdAttackTimer;
     [SerializeField] private float holdAttackInterval = 0.3f;
@@ -98,8 +89,6 @@ public class InputHandler : MonoBehaviour
         // Movement
         Vector2 moveInput = _moveAction.ReadValue<Vector2>();
         _playerController.UpdateMoveInput(moveInput);
-
-        DetectDoubleTap(moveInput);
 
         // Sprint
         _playerController.UpdateSprintInput(_sprintAction.IsPressed());
@@ -169,60 +158,6 @@ public class InputHandler : MonoBehaviour
             case CameraMode.ThirdPerson: _virtualCamera.gameObject.SetActive(true); break;
             case CameraMode.FreeLook: _freeLookCamera.gameObject.SetActive(true); break;
             case CameraMode.FirstPerson: _FPCamera.gameObject.SetActive(true); break;
-        }
-    }
-
-    // Dodge controller (Mik)
-    private void DetectDoubleTap(Vector2 input)
-    {
-        if (dodgeController == null) return;
-
-        Vector3 camForward = Camera.main.transform.forward;
-        Vector3 camRight = Camera.main.transform.right;
-
-        camForward.y = 0;
-        camRight.y = 0;
-        camForward.Normalize();
-        camRight.Normalize();
-
-        // Detect FORWARD press
-        if (_moveAction.WasPressedThisFrame())
-        {
-            if (input.y > 0.5f)
-            {
-                if (Time.time - lastTapForward < doubleTapTime)
-                {
-                    dodgeController.TryDodge(camForward);
-                }
-                lastTapForward = Time.time;
-            }
-
-            if (input.y < -0.5f)
-            {
-                if (Time.time - lastTapBack < doubleTapTime)
-                {
-                    dodgeController.TryDodge(-camForward);
-                }
-                lastTapBack = Time.time;
-            }
-
-            if (input.x < -0.5f)
-            {
-                if (Time.time - lastTapLeft < doubleTapTime)
-                {
-                    dodgeController.TryDodge(-camRight);
-                }
-                lastTapLeft = Time.time;
-            }
-
-            if (input.x > 0.5f)
-            {
-                if (Time.time - lastTapRight < doubleTapTime)
-                {
-                    dodgeController.TryDodge(camRight);
-                }
-                lastTapRight = Time.time;
-            }
         }
     }
 }
