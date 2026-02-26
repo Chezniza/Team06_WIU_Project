@@ -24,4 +24,6 @@ MonoBehaviour:
   itemRewards:
   - item: {fileID: 11400000, guid: 0661207734a84d84cbd95a538aac4787, type: 2}
     quantity: 1
+  - item: {fileID: 11400000, guid: 0661207734a84d84cbd95a538aac4787, type: 2}
+    quantity: 1
   icon: {fileID: 6905562749588875414, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
