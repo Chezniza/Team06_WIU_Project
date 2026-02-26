@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Kill enemy Minions
   questType: 0
   requiredAmount: 1
-  targetName: 
+  targetName: Minion
   itemName: 
   rewardGold: 10
   rewardXP: 10

@@ -6486,7 +6486,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
   _inputHandler: {fileID: 1481967575}
-  _questGiver: {fileID: 0}
   dialogueTrigger:
     m_PersistentCalls:
       m_Calls:
@@ -8020,7 +8019,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
@@ -8029,7 +8028,7 @@ PrefabInstance:
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1696673080}
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -8044,7 +8043,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: NotifyEnemyKilled
+      value: NotifyDeath
       objectReference: {fileID: 0}
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
@@ -8052,7 +8051,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: QuestHandler, Assembly-CSharp
+      value: EnemyQuestTarget, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 4812802280110969692, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
       propertyPath: deathEvent.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -8077,7 +8076,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1972549828917542275, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1696673080}
   m_SourcePrefab: {fileID: 100100000, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
 --- !u!1 &1591719777
 GameObject:
@@ -8383,6 +8385,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestHandler
   _inventoryManager: {fileID: 1481967577}
+--- !u!1 &1696673067 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1972549828917542275, guid: 85d3a4b62f987b84daa22726d75776a6, type: 3}
+  m_PrefabInstance: {fileID: 1561070349}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1696673080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696673067}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a72b65f50193b345a19d0492e7e276b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyQuestTarget
+  _enemyID: Minion
+  _questHandler: {fileID: 1688058773}
 --- !u!1001 &1696718121
 PrefabInstance:
   m_ObjectHideFlags: 0
