@@ -25,4 +25,12 @@ public class QuestUIHandler : MonoBehaviour
             quest.UpdateText(quest.GetQuest());
         }
     }
+
+    public void UpdateQuests()
+    {
+        foreach (var quest in activeQuests)
+        {
+            quest.UpdateText(quest.GetQuest());
+        }
+    }
 }
