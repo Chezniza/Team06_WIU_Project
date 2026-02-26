@@ -4,9 +4,11 @@ using UnityEngine;
 public class QuestUI : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI questText;
+    private Quest quest;
 
-    public void UpdateText(Quest quest)
+    public void UpdateText(Quest q)
     {
+        quest = q;
         QuestData data = quest.Data;
 
         // Add title
@@ -26,5 +28,10 @@ public class QuestUI : MonoBehaviour
 
         // Add quest progress
         questText.text += " " + quest.GetProgress() + " / " + data.requiredAmount;
+    }
+
+    public Quest GetQuest()
+    {
+        return quest;
     }
 }
