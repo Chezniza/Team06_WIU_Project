@@ -20,3 +20,8 @@ MonoBehaviour:
   targetName: Minion
   itemName: 
   rewardGold: 10
+  rewardXP: 0
+  itemRewards:
+  - item: {fileID: 11400000, guid: 0661207734a84d84cbd95a538aac4787, type: 2}
+    quantity: 1
+  icon: {fileID: 0}
